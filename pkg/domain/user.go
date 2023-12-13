@@ -6,12 +6,13 @@ type User struct{
 	Name string `json:"name"`
 	Dob string `json:"dob"`
 	Age uint `json:"age"`
+	PhNo string `json:"ph_no"`
 	GenderId uint `json:"gender_id"`
 	Gender Gender `json:"gender" gorm:"foreignKey:GenderId"`
 	City string `json:"city"`
 	Country string `json:"country"`
 	Bio string `json:"bio"`
-	IsBlock bool `json:"Is_block" gorm:"default:false"`
+	IsBlock bool `json:"is_block" gorm:"default:false"`
 	ReportCount int `json:"report_count" gorm:"default:0"`
 }
 

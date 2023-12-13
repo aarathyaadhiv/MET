@@ -34,3 +34,25 @@ func (u *UserHandler) SendOtp(c *gin.Context){
 	succRes:=response.MakeResponse(http.StatusOK,"successfully sent otp",nil,nil)
 	c.JSON(http.StatusOK,succRes)
 }
+
+func (u *UserHandler) VerifyOtp(c *gin.Context){
+	var verify models.OtpVerify
+	if err:=c.BindJSON(&verify);err!=nil{
+		errRes:=response.MakeResponse(http.StatusBadRequest,"data is not in required format",nil,err.Error())
+		c.JSON(http.StatusBadRequest,errRes)
+		return
+	}
+	exist,token,err:=u.UseCase.VerifyOtp(verify)
+	if err!=nil{
+		errRes:=response.MakeResponse(http.StatusInternalServerError,"error in verifying otp",nil,err.Error())
+		c.JSON(http.StatusInternalServerError,errRes)
+		return
+	}
+	if exist{
+		succRes:=response.MakeResponse(http.StatusOK,"successfully verified existing user",token,nil)
+		c.JSON(http.StatusOK,succRes)
+		return
+	}
+	succRes:=response.MakeResponse(http.StatusCreated,"successfully created user",token,nil)
+	c.JSON(http.StatusCreated,succRes)
+}

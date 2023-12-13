@@ -7,4 +7,5 @@ import (
 
 func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler) {
 	route.POST("/sendOtp",userHandler.SendOtp)
+	route.POST("/verify",userHandler.VerifyOtp)
 }

@@ -14,6 +14,7 @@ type ServerHTTP struct{
 func NewServerHTTP(userHandler handlerInterface.UserHandler)*ServerHTTP{
 	server:=gin.New()
 	routes.UserRoutes(server.Group("/"),userHandler)
+	
 	return &ServerHTTP{engine: server}
 }
 
