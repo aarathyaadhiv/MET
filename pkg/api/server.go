@@ -11,13 +11,15 @@ type ServerHTTP struct{
 	engine *gin.Engine
 }
 
-func NewServerHTTP(userHandler handlerInterface.UserHandler)*ServerHTTP{
+func NewServerHTTP(userHandler handlerInterface.UserHandler,adminHandler handlerInterface.AdminHandler)*ServerHTTP{
 	server:=gin.New()
+	server.Use(gin.Logger())
 	routes.UserRoutes(server.Group("/"),userHandler)
+	routes.AdminRoutes(server.Group("/admin"),adminHandler)
 	
 	return &ServerHTTP{engine: server}
 }
 
 func (s *ServerHTTP) Start(){
-	s.engine.Run(":3000")
+	s.engine.Run(":3001")
 }

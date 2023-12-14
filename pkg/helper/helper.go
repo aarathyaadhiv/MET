@@ -1,0 +1,11 @@
+package helper
+
+import "regexp"
+
+
+func IsValidEmail(email string) bool {
+    // Define a regex pattern for a valid email address
+    pattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+    match, _ := regexp.MatchString(pattern,email)
+    return match
+}

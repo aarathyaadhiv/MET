@@ -20,6 +20,9 @@ func InitializeAPI(c config.Config)(*server.ServerHTTP,error){
 		repository.NewUserRepository,
 		usecase.NewUserUseCase,
 		handler.NewUserHandler,
+		repository.NewAdminRepository,
+		usecase.NewAdminUseCase,
+		handler.NewAdminHandler,
 		server.NewServerHTTP,
 	)
 	return &server.ServerHTTP{},nil
