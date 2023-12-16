@@ -3,6 +3,7 @@ package helper
 import (
 	"time"
 
+	"github.com/aarathyaadhiv/met/pkg/config"
 	"github.com/golang-jwt/jwt"
 )
 
@@ -22,7 +23,8 @@ func GenerateAdminToken(id uint)(string,error){
 			IssuedAt: time.Now().Unix(),
 		},
 	}
+	config:=config.Config{}
 	token:=jwt.NewWithClaims(jwt.SigningMethodHS256,claim)
-	tokenString,err:=token.SignedString([]byte("met"))
+	tokenString,err:=token.SignedString([]byte(config.JwtSecret))
 	return tokenString,err
 }

@@ -15,9 +15,11 @@ type Config struct {
 	TwilioAccountSID string `mapstructure:"TWILIO_ACCOUNT_SID"`
 	TwilioAuthToken  string `mapstructure:"TWILIO_AUTHTOKEN"`
 	TwilioServicesId string `mapstructure:"TWILIO_SERVICES_ID"`
+
+	JwtSecret string `mapstructure:"JWT_SECRET"`
 }
 
-var envs = []string{"DB_HOST", "DB_NAME", "DB_USER", "DB_PORT", "DB_PASSWORD", "TWILIO_ACCOUNT_SID", "TWILIO_AUTHTOKEN", "TWILIO_SERVICES_ID"}
+var envs = []string{"DB_HOST", "DB_NAME", "DB_USER", "DB_PORT", "DB_PASSWORD", "TWILIO_ACCOUNT_SID", "TWILIO_AUTHTOKEN", "TWILIO_SERVICES_ID","JWT_SECRET"}
 
 func LoadConfig() (Config, error) {
 	var config Config

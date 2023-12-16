@@ -7,6 +7,7 @@ import (
 	interfaces "github.com/aarathyaadhiv/met/pkg/repository/interface"
 	useCaseInterface "github.com/aarathyaadhiv/met/pkg/usecase/interface"
 	"github.com/aarathyaadhiv/met/pkg/utils/models"
+	"github.com/aarathyaadhiv/met/pkg/utils/response"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -61,4 +62,43 @@ func (a *AdminUseCase) AdminLogin(admin models.Admin) (string, error) {
 		return "", errors.New("admin token generation failed")
 	}
 	return token, nil
+}
+
+
+func (a *AdminUseCase) BlockUser(id uint)(uint,error){
+	block,err:=a.Repo.IsUserBlocked(id)
+	if err!=nil{
+		return 0,errors.New("error in connecting with database")
+	}
+	if block{
+		return 0,errors.New("user is already blocked")
+	}
+	res,err:=a.Repo.BlockUser(id)
+	if err!=nil{
+		return 0,errors.New("error in connecting with database")
+	}
+	return res,nil
+}
+
+func (a *AdminUseCase) UnBlockUser(id uint)(uint,error){
+	block,err:=a.Repo.IsUserBlocked(id)
+	if err!=nil{
+		return 0,errors.New("error in connecting with database")
+	}
+	if !block{
+		return 0,errors.New("user is not blocked")
+	}
+	res,err:=a.Repo.UnblockUser(id)
+	if err!=nil{
+		return 0,errors.New("error in connecting with database")
+	}
+	return res,nil
+}
+
+func (a *AdminUseCase) GetUsers()([]response.User,error){
+	res,err:=a.Repo.GetUsers()
+	if err!=nil{
+		return nil,errors.New("error in fetching data ")
+	}
+	return res,nil
 }

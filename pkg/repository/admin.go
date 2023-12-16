@@ -4,6 +4,7 @@ import (
 	"github.com/aarathyaadhiv/met/pkg/domain"
 	interfaces "github.com/aarathyaadhiv/met/pkg/repository/interface"
 	"github.com/aarathyaadhiv/met/pkg/utils/models"
+	"github.com/aarathyaadhiv/met/pkg/utils/response"
 	"gorm.io/gorm"
 )
 
@@ -39,4 +40,36 @@ func (a *AdminRepository) FetchAdmin(email string)(domain.Admin,error){
 		return domain.Admin{},err
 	}
 	return admin,nil
+}
+
+func (a *AdminRepository) BlockUser(id uint)(uint,error){
+	var userId uint
+	if err:=a.DB.Raw(`UPDATE users SET is_block=true WHERE id=? RETURNING id `).Scan(&userId).Error;err!=nil{
+		return 0,err
+	}
+	return userId,nil
+}
+
+func (a *AdminRepository) UnblockUser(id uint)(uint,error){
+	var userId uint
+	if err:=a.DB.Raw(`UPDATE users SET is_block=false WHERE id=? RETURNING id`,id).Scan(&userId).Error;err!=nil{
+		return 0,err
+	}
+	return userId,nil
+}
+
+func (a *AdminRepository) GetUsers()([]response.User,error){
+	var users []response.User
+	if err:=a.DB.Raw(`SELECT u.id,u.name,u.age,u.ph_no,g.name,u.city,u.country,u.is_block FROM users as u JOIN genders as g ON u.gender_id=g.id `).Scan(&users).Error;err!=nil{
+		return nil,err
+	}
+	return users,nil
+}
+
+func (a *AdminRepository) IsUserBlocked(id uint)(bool,error){
+	var isBlock bool
+	if err:=a.DB.Raw(`SELECT is_block FROM users WHERE id=?`,id).Scan(&isBlock).Error;err!=nil{
+		return false,err
+	}
+	return isBlock,nil
 }
