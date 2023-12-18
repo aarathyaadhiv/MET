@@ -129,3 +129,21 @@ func (u *UserHandler)AddProfile(c *gin.Context){
 	succRes:=response.MakeResponse(http.StatusOK,"successfully added user details",res,nil)
 	c.JSON(http.StatusOK,succRes)
 }
+
+func (u *UserHandler) GetProfile(c *gin.Context){
+	id,ok:=c.Get("userId")
+	if !ok{
+		errRes:=response.MakeResponse(http.StatusUnauthorized,"unauthorised",nil,errors.New("error in retrieving user id"))
+		c.JSON(http.StatusUnauthorized,errRes)
+		return
+	}
+	profile,err:=u.UseCase.ShowProfile(id.(uint))
+	if err!=nil{
+		errRes:=response.MakeResponse(http.StatusInternalServerError,"internal server error",nil,err.Error())
+		c.JSON(http.StatusInternalServerError,errRes)
+		return
+	}
+	succRes:=response.MakeResponse(http.StatusOK,"successfully showing profile",profile,nil)
+	c.JSON(http.StatusOK,succRes)
+
+}

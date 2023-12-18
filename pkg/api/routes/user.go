@@ -14,6 +14,7 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 		profile:=route.Group("/profile")
 		{
 			profile.POST("",userHandler.AddProfile)
+			profile.GET("",userHandler.GetProfile)
 		}
 	}
 }

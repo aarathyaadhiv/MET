@@ -10,4 +10,5 @@ type UserHandler interface{
 	SendOtp(c *gin.Context)
 	VerifyOtp(c *gin.Context)
 	AddProfile(c *gin.Context)
+	GetProfile(c *gin.Context)
 }

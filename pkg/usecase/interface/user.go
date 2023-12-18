@@ -11,4 +11,5 @@ type UserUseCase interface{
 	SendOtp(phNo string) error 
 	VerifyOtp(otp models.OtpVerify)(bool,response.Token,error)
 	AddProfile(profile models.Profile,id uint)(uint,error)
+	ShowProfile(id uint)(response.Profile,error)
 }

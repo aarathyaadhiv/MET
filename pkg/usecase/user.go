@@ -131,3 +131,23 @@ func (u *UserUseCase) AddProfile(profile models.Profile, id uint) (uint, error) 
 	}
 	return userId, nil
 }
+
+func (u *UserUseCase) ShowProfile(id uint)(response.Profile,error){
+	userDetails,err:=u.Repo.ShowProfile(id)
+	if err!=nil{
+		return response.Profile{},errors.New("error in fetching user details")
+	}
+	images,err:=u.Repo.FetchImages(id)
+	if err!=nil{
+		return response.Profile{},errors.New("error in fetching user images")
+	}
+	interests,err:=u.Repo.FetchInterests(id)
+	if err!=nil{
+		return response.Profile{},errors.New("error in fetching user interests")
+	}
+	return response.Profile{
+		UserDetails: userDetails,
+		Image: images,
+		Interests: interests,
+	},nil
+}
