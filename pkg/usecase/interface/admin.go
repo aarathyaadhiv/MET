@@ -8,7 +8,7 @@ import (
 
 type AdminUseCase interface{
 	AdminSignUp(admin models.Admin) (uint, error)
-	AdminLogin(admin models.Admin) (string, error)
+	AdminLogin(admin models.Admin) (response.Token, error)
 	BlockUser(id uint)(uint,error)
 	UnBlockUser(id uint)(uint,error)
 	GetUsers()([]response.User,error)

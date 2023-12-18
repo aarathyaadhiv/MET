@@ -26,3 +26,9 @@ type User struct {
 	Country string `json:"country"`
 	IsBlock bool   `json:"is_block"`
 }
+
+type Token struct{
+	AccessToken string
+	RefreshToken string
+}
+

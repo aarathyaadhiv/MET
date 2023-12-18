@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 )
@@ -17,9 +19,13 @@ type Config struct {
 	TwilioServicesId string `mapstructure:"TWILIO_SERVICES_ID"`
 
 	JwtSecret string `mapstructure:"JWT_SECRET"`
+
+	AWS_REGION            string `mapstructure:"AWS_REGION"`
+	AWS_ACCESS_KEY_ID     string `mapstructure:"AWS_ACCESS_KEY_ID"`
+	AWS_SECRET_ACCESS_KEY string `mapstructure:"AWS_SECRET_ACCESS_KEY"`
 }
 
-var envs = []string{"DB_HOST", "DB_NAME", "DB_USER", "DB_PORT", "DB_PASSWORD", "TWILIO_ACCOUNT_SID", "TWILIO_AUTHTOKEN", "TWILIO_SERVICES_ID","JWT_SECRET"}
+var envs = []string{"DB_HOST", "DB_NAME", "DB_USER", "DB_PORT", "DB_PASSWORD", "TWILIO_ACCOUNT_SID", "TWILIO_AUTHTOKEN", "TWILIO_SERVICES_ID", "JWT_SECRET", "AWS_REGION", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"}
 
 func LoadConfig() (Config, error) {
 	var config Config
@@ -40,5 +46,6 @@ func LoadConfig() (Config, error) {
 	if err := validator.New().Struct(&config); err != nil {
 		return config, err
 	}
+	fmt.Println("config", config)
 	return config, nil
 }

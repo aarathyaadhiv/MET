@@ -50,6 +50,8 @@ func (a *AdminHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errRes)
 		return
 	}
+	c.SetCookie("accessAdminToken",token.AccessToken,4500,"","",false,true)
+	c.SetCookie("refreshAdminToken",token.RefreshToken,4500,"","",false,true)
 	succRes := response.MakeResponse(http.StatusOK, "successfully login", token, nil)
 	c.JSON(http.StatusOK, succRes)
 }

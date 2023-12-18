@@ -40,26 +40,30 @@ func (a *AdminUseCase) AdminSignUp(admin models.Admin) (uint, error) {
 	return id, nil
 }
 
-func (a *AdminUseCase) AdminLogin(admin models.Admin) (string, error) {
+func (a *AdminUseCase) AdminLogin(admin models.Admin) (response.Token, error) {
 	valid := helper.IsValidEmail(admin.Email)
 	if !valid {
-		return "", errors.New("please enter a valid email")
+		return response.Token{}, errors.New("please enter a valid email")
 	}
 	exist := a.Repo.IsAdminExist(admin.Email)
 	if !exist {
-		return "", errors.New("admin with this email id does not exist")
+		return response.Token{}, errors.New("admin with this email id does not exist")
 	}
 	adminDetails, err := a.Repo.FetchAdmin(admin.Email)
 	if err != nil {
-		return "", errors.New("error in fetching admin details")
+		return response.Token{}, errors.New("error in fetching admin details")
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(adminDetails.Password), []byte(admin.Password))
 	if err != nil {
-		return "", errors.New("password mismatch")
+		return response.Token{}, errors.New("password mismatch")
 	}
-	token, err := helper.GenerateAdminToken(adminDetails.Id)
+	accessToken,refreshToken, err := helper.GenerateAdminToken(adminDetails.Id)
 	if err != nil {
-		return "", errors.New("admin token generation failed")
+		return response.Token{}, errors.New("admin token generation failed")
+	}
+	token:=response.Token{
+		AccessToken: accessToken,
+		RefreshToken: refreshToken,
 	}
 	return token, nil
 }

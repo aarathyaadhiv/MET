@@ -2,6 +2,7 @@ package repository
 
 import (
 	interfaces "github.com/aarathyaadhiv/met/pkg/repository/interface"
+	"github.com/aarathyaadhiv/met/pkg/utils/models"
 	"gorm.io/gorm"
 )
 
@@ -44,4 +45,26 @@ func (u *UserRepository) CreateUserId(phNo string)(uint,error){
 		return 0,err
 	}
 	return id,nil
+}
+
+func (u *UserRepository) UpdateUser(id uint,profile models.ProfileSave)(uint,error){
+	var userId uint
+	if err:=u.DB.Raw(`UPDATE users SET name=?,dob=?,age=?,gender_id=?,city=?,country=?,longitude=?,lattitude=?,bio=? WHERE id=? RETURNING id`,profile.Name,profile.Dob,profile.Age,profile.GenderId,profile.City,profile.Country,profile.Longitude,profile.Lattitude,profile.Bio,id).Scan(&userId).Error;err!=nil{
+		return 0,err
+	}
+	return userId,nil
+}
+
+func (u *UserRepository) AddInterest(id,interest uint)error{
+	if err:=u.DB.Exec(`INSERT INTO user_interests(user_id,interest_id) values(?,?)`,id,interest).Error;err!=nil{
+		return err
+	}
+	return nil
+}
+
+func (u *UserRepository) AddImage(id uint,image string)error{
+	if err:=u.DB.Exec(`INSERT INTO images(user_id,image) values(?,?)`,id,image).Error;err!=nil{
+		return err
+	}
+	return nil
 }

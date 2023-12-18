@@ -14,7 +14,7 @@ type AdminCustomClaim struct{
 	jwt.StandardClaims
 }
 
-func GenerateAdminToken(id uint)(string,error){
+func GenerateAdminToken(id uint)(string,string,error){
 	claim:=&AdminCustomClaim{
 		Id: id,
 		Role: "admin",
@@ -26,5 +26,21 @@ func GenerateAdminToken(id uint)(string,error){
 	config:=config.Config{}
 	token:=jwt.NewWithClaims(jwt.SigningMethodHS256,claim)
 	tokenString,err:=token.SignedString([]byte(config.JwtSecret))
-	return tokenString,err
+	if err!=nil{
+		return "","",err
+	}
+	claims:=&AdminCustomClaim{
+		Id: id,
+		Role: "admin",
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour *24).Unix(),
+			IssuedAt: time.Now().Unix(),
+		},
+	}
+	refreshToken:=jwt.NewWithClaims(jwt.SigningMethodHS256,claims)
+	refreshTokenS,err:=refreshToken.SignedString([]byte(config.JwtSecret))
+	if err!=nil{
+		return "","",err
+	}
+	return tokenString,refreshTokenS,nil
 }

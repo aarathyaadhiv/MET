@@ -1,10 +1,12 @@
 package domain
 
+import "time"
+
 
 type User struct{
 	Id uint `json:"id" gorm:"primaryKey"`
 	Name string `json:"name"`
-	Dob string `json:"dob"`
+	Dob time.Time `json:"dob"`
 	Age uint `json:"age"`
 	PhNo string `json:"ph_no"`
 	GenderId uint `json:"gender_id"`
@@ -23,11 +25,17 @@ type Gender struct{
 	Name string `json:"name" `
 }
 
-type Interests struct{
+type UserInterests struct{
 	Id uint `json:"id" gorm:"primaryKey"`
 	UserId uint `json:"user_id"`
 	User User `json:"user" gorm:"foreignKey:UserId" `
-	Interest string `json:"interest" `
+	InterestId uint `json:"interest_id"`
+	Interest Interests `json:"interest" gorm:"foreignKey:InterestId"`
+}
+
+type Interests struct{
+	Id uint `json:"id" gorm:"primaryKey"`
+	Interest string `json:"interest"`
 }
 
 type Images struct{

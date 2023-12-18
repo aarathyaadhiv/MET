@@ -18,6 +18,7 @@ func ConnectDB(c config.Config)(*gorm.DB,error){
 	db.AutoMigrate(&domain.User{})
 	db.AutoMigrate(&domain.Admin{})
 	db.AutoMigrate(&domain.Interests{})
+	db.AutoMigrate(&domain.UserInterests{})
 	db.AutoMigrate(&domain.Images{})
 	db.AutoMigrate(&domain.Gender{})
 	db.AutoMigrate(&domain.Subscription{})
