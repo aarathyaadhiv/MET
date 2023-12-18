@@ -19,4 +19,5 @@ type UserRepository interface{
 	ShowProfile(id uint)(response.UserDetails,error)
 	FetchImages(id uint)([]string,error)
 	FetchInterests(id uint)([]string,error)
+	IsBlocked(id uint)(bool,error)
 }

@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"fmt"
-
 	interfaces "github.com/aarathyaadhiv/met/pkg/repository/interface"
 	"github.com/aarathyaadhiv/met/pkg/utils/models"
 	"github.com/aarathyaadhiv/met/pkg/utils/response"
@@ -84,7 +82,7 @@ func (u *UserRepository) FetchImages(id uint) ([]string, error) {
 	if err := u.DB.Raw(`SELECT image FROM images WHERE user_id=?`, id).Scan(&images).Error; err != nil {
 		return nil, err
 	}
-	fmt.Println("images", images)
+
 	return images, nil
 }
 
@@ -94,4 +92,12 @@ func (u *UserRepository) FetchInterests(id uint) ([]string, error) {
 		return nil, err
 	}
 	return interests, nil
+}
+
+func (u *UserRepository) IsBlocked(id uint) (bool, error) {
+	var block bool
+	if err := u.DB.Raw(`SELECT is_block FROM users WHERE id=?`, id).Scan(&block).Error; err != nil {
+		return false, err
+	}
+	return block, nil
 }

@@ -9,6 +9,7 @@ package di
 import (
 	"github.com/aarathyaadhiv/met/pkg/api"
 	"github.com/aarathyaadhiv/met/pkg/api/handler"
+	"github.com/aarathyaadhiv/met/pkg/api/middleware"
 	"github.com/aarathyaadhiv/met/pkg/config"
 	"github.com/aarathyaadhiv/met/pkg/db"
 	"github.com/aarathyaadhiv/met/pkg/repository"
@@ -28,6 +29,7 @@ func InitializeAPI(c config.Config) (*server.ServerHTTP, error) {
 	adminRepository := repository.NewAdminRepository(gormDB)
 	adminUseCase := usecase.NewAdminUseCase(adminRepository)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
-	serverHTTP := server.NewServerHTTP(userHandler, adminHandler)
+	authMiddleware := middleware.NewAuthMiddleware(userRepository)
+	serverHTTP := server.NewServerHTTP(userHandler, adminHandler, authMiddleware)
 	return serverHTTP, nil
 }

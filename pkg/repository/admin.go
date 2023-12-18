@@ -56,9 +56,10 @@ func (a *AdminRepository) UnblockUser(id uint) (uint, error) {
 	return userId, nil
 }
 
-func (a *AdminRepository) GetUsers() ([]response.User, error) {
+func (a *AdminRepository) GetUsers(page,count int) ([]response.User, error) {
+	offset:=(page-1)*count
 	var users []response.User
-	if err := a.DB.Raw(`SELECT u.id,u.name,u.age,u.ph_no,g.name as gender,u.city,u.country,u.is_block FROM users as u JOIN genders as g ON u.gender_id=g.id `).Scan(&users).Error; err != nil {
+	if err := a.DB.Raw(`SELECT u.id,u.name,u.age,u.ph_no,g.name as gender,u.city,u.country,u.is_block FROM users as u JOIN genders as g ON u.gender_id=g.id limit ? offset ?`,count,offset).Scan(&users).Error; err != nil {
 		return nil, err
 	}
 

@@ -47,6 +47,17 @@ func (u *UserHandler) SendOtp(c *gin.Context){
 	c.JSON(http.StatusOK,succRes)
 }
 
+// @Summary Verify OTP 
+// @Description Verify OTP for user authentication and generate access and refresh tokens
+// @Tags User Authentication
+// @Accept json
+// @Produce json
+// @Param request body models.OtpVerify true "OTP verification details"
+// @Success 200 {object} response.Response{} "Successfully verified existing user"
+// @Success 201 {object} response.Response{} "Successfully created user"
+// @Failure 400 {object} response.Response{} "Data is not in required format"
+// @Failure 500 {object} response.Response{} "Error in verifying OTP"
+// @Router /verify [post]
 func (u *UserHandler) VerifyOtp(c *gin.Context){
 	var verify models.OtpVerify
 	if err:=c.BindJSON(&verify);err!=nil{
@@ -71,6 +82,27 @@ func (u *UserHandler) VerifyOtp(c *gin.Context){
 	c.JSON(http.StatusCreated,succRes)
 }
 
+// @Summary Add user profile details
+// @Description Add user profile details including name, date of birth, gender, location, bio, interests, and image
+// @Tags User Profile
+// @Security ApiKeyAuth
+// @Accept multipart/form-data
+// @Produce json
+// @Param name formData string true "Name"
+// @Param dob formData string true "Date of Birth (YYYY-MM-DD)"
+// @Param genderId formData integer true "Gender ID"
+// @Param city formData string true "City"
+// @Param country formData string true "Country"
+// @Param longitude formData string true "Longitude"
+// @Param lattitude formData string true "Latitude"
+// @Param bio formData string true "Bio"
+// @Param interests formData string true "Interests (comma-separated IDs)"
+// @Param image formData file true "Image"
+// @Success 200 {object} response.Response{} "Successfully added user details"
+// @Failure 400 {object} response.Response{} "Data is not in the required format"
+// @Failure 401 {string} response.Response{} "Unauthorized"
+// @Failure 500 {object} response.Response{} "Internal server error"
+// @Router /profile [post]
 func (u *UserHandler)AddProfile(c *gin.Context){
 	id,ok:=c.Get("userId")
 	if !ok{
@@ -129,7 +161,16 @@ func (u *UserHandler)AddProfile(c *gin.Context){
 	succRes:=response.MakeResponse(http.StatusOK,"successfully added user details",res,nil)
 	c.JSON(http.StatusOK,succRes)
 }
-
+// @Summary Get user profile details
+// @Description Retrieve user profile details based on the user ID
+// @Tags User Profile
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{} "Successfully showing profile"
+// @Failure 401 {object} response.Response{} "Unauthorized"
+// @Failure 500 {object} response.Response{} "Internal server error"
+// @Router /profile [get]
 func (u *UserHandler) GetProfile(c *gin.Context){
 	id,ok:=c.Get("userId")
 	if !ok{

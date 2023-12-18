@@ -99,8 +99,8 @@ func (a *AdminUseCase) UnBlockUser(id uint)(uint,error){
 	return res,nil
 }
 
-func (a *AdminUseCase) GetUsers()([]response.User,error){
-	res,err:=a.Repo.GetUsers()
+func (a *AdminUseCase) GetUsers(page,count int)([]response.User,error){
+	res,err:=a.Repo.GetUsers(page,count)
 	if err!=nil{
 		return nil,errors.New("error in fetching data ")
 	}

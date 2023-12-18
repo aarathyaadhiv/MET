@@ -10,6 +10,7 @@ import (
 	"github.com/aarathyaadhiv/met/pkg/db"
 	"github.com/aarathyaadhiv/met/pkg/repository"
 	"github.com/aarathyaadhiv/met/pkg/usecase"
+	"github.com/aarathyaadhiv/met/pkg/api/middleware"
 	"github.com/google/wire"
 )
 
@@ -23,6 +24,7 @@ func InitializeAPI(c config.Config)(*server.ServerHTTP,error){
 		repository.NewAdminRepository,
 		usecase.NewAdminUseCase,
 		handler.NewAdminHandler,
+		middleware.NewAuthMiddleware,
 		server.NewServerHTTP,
 	)
 	return &server.ServerHTTP{},nil

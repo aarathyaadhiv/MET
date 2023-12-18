@@ -13,7 +13,7 @@ import (
 
 func UserAuthorization(c *gin.Context) {
 	tokenString := c.Request.Header.Get("Authorization")
-	config:=config.Config{}
+	config := config.Config{}
 
 	token, err := jwt.ParseWithClaims(tokenString, &helper.CustomUserClaim{}, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -34,7 +34,92 @@ func UserAuthorization(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	id:=claim.Id
-	c.Set("userId",id)
+	id := claim.Id
+	c.Set("userId", id)
 	c.Next()
+}
+func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		accessTokens, err := c.Cookie("accessToken")
+		if err != nil {
+			errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
+			c.JSON(http.StatusUnauthorized, errRes)
+			c.Abort()
+			return
+		}
+		accessToken, err := ValidateUserToken(accessTokens)
+		if err != nil || !accessToken.Valid {
+
+			refreshTokens, err := c.Cookie("refreshToken")
+			if err != nil {
+				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
+				c.JSON(http.StatusUnauthorized, errRes)
+				c.Abort()
+				return
+			}
+
+			refreshToken, err := ValidateUserToken(refreshTokens)
+			if err != nil || !refreshToken.Valid {
+				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
+				c.JSON(http.StatusUnauthorized, errRes)
+				c.Abort()
+				return
+			}
+
+			claim, ok := refreshToken.Claims.(*helper.CustomUserClaim)
+			if !ok {
+				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
+				c.JSON(http.StatusUnauthorized, errRes)
+				c.Abort()
+				return
+			}
+
+			id := claim.Id
+
+			block, err := a.UserRepository.IsBlocked(id)
+			if block {
+				errRes := response.MakeResponse(http.StatusUnauthorized, "claim recovery failed", nil, err.Error())
+				c.JSON(http.StatusUnauthorized, errRes)
+				c.Abort()
+				return
+			}
+
+			access, refresh, err := helper.GenerateUserToken(id)
+			if err != nil {
+				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
+				c.JSON(http.StatusUnauthorized, errRes)
+				c.Abort()
+				return
+			}
+
+			c.SetCookie("accessToken", access, 4500, "", "", false, true)
+			c.SetCookie("refreshToken", refresh, 4500, "", "", false, true)
+			c.Set("userId", id)
+			c.Next()
+			return
+		}
+		claim, ok := accessToken.Claims.(*helper.CustomUserClaim)
+		if !ok {
+			errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
+			c.JSON(http.StatusUnauthorized, errRes)
+			c.Abort()
+			return
+		}
+		id := claim.Id
+		c.Set("userId", id)
+		c.Next()
+
+	}
+}
+
+func ValidateUserToken(tokenString string) (*jwt.Token, error) {
+	config := config.Config{}
+	token, err := jwt.ParseWithClaims(tokenString, &helper.CustomUserClaim{}, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method:%v", t.Header["alg"])
+		}
+		return []byte(config.JwtSecret), nil
+	})
+	return token, err
 }

@@ -13,6 +13,6 @@ type AdminRepository interface{
 	FetchAdmin(email string)(domain.Admin,error)
 	BlockUser(id uint)(uint,error)
 	UnblockUser(id uint)(uint,error)
-	GetUsers()([]response.User,error)
+	GetUsers(page,count int)([]response.User,error)
 	IsUserBlocked(id uint)(bool,error)
 }

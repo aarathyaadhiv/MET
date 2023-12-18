@@ -1,9 +1,29 @@
 definitions:
+  models.Admin:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
   models.OtpRequest:
     properties:
       ph_no:
         type: string
     required:
+    - ph_no
+    type: object
+  models.OtpVerify:
+    properties:
+      code:
+        type: string
+      ph_no:
+        type: string
+    required:
+    - code
     - ph_no
     type: object
   response.Response:
@@ -18,6 +38,241 @@ definitions:
 info:
   contact: {}
 paths:
+  /admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Log in as an admin with provided credentials
+      parameters:
+      - description: Admin login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Admin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged in
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Provided data is not in required format
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Log in as an admin
+      tags:
+      - Admin Authentication
+  /admin/signUp:
+    post:
+      consumes:
+      - application/json
+      description: Create a new admin with provided details
+      parameters:
+      - description: Admin details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Admin'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created admin
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Data given is not in required format
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Create a new admin
+      tags:
+      - Admin Authentication
+  /admin/users:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all users
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Number of items per page (default: 3)'
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved users
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: int conversion failed
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all users to admin
+      tags:
+      - User Management
+  /admin/users/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Block or unblock a user based on the provided ID and block status
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'Block status: true to block, false to unblock'
+        in: query
+        name: block
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully blocked/unblocked user
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Boolean conversion failed
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Block or unblock a user
+      tags:
+      - User Management
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve user profile details based on the user ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully showing profile
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user profile details
+      tags:
+      - User Profile
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add user profile details including name, date of birth, gender,
+        location, bio, interests, and image
+      parameters:
+      - description: Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Date of Birth (YYYY-MM-DD)
+        in: formData
+        name: dob
+        required: true
+        type: string
+      - description: Gender ID
+        in: formData
+        name: genderId
+        required: true
+        type: integer
+      - description: City
+        in: formData
+        name: city
+        required: true
+        type: string
+      - description: Country
+        in: formData
+        name: country
+        required: true
+        type: string
+      - description: Longitude
+        in: formData
+        name: longitude
+        required: true
+        type: string
+      - description: Latitude
+        in: formData
+        name: lattitude
+        required: true
+        type: string
+      - description: Bio
+        in: formData
+        name: bio
+        required: true
+        type: string
+      - description: Interests (comma-separated IDs)
+        in: formData
+        name: interests
+        required: true
+        type: string
+      - description: Image
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully added user details
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Data is not in the required format
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add user profile details
+      tags:
+      - User Profile
   /sendOtp:
     post:
       consumes:
@@ -42,6 +297,41 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       summary: User Login
+      tags:
+      - User Authentication
+  /verify:
+    post:
+      consumes:
+      - application/json
+      description: Verify OTP for user authentication and generate access and refresh
+        tokens
+      parameters:
+      - description: OTP verification details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.OtpVerify'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully verified existing user
+          schema:
+            $ref: '#/definitions/response.Response'
+        "201":
+          description: Successfully created user
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Data is not in required format
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Error in verifying OTP
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Verify OTP
       tags:
       - User Authentication
 swagger: "2.0"

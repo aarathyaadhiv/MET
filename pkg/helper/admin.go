@@ -19,7 +19,7 @@ func GenerateAdminToken(id uint)(string,string,error){
 		Id: id,
 		Role: "admin",
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Minute *30).Unix(),
+			ExpiresAt: time.Now().Add(time.Minute *3).Unix(),
 			IssuedAt: time.Now().Unix(),
 		},
 	}
