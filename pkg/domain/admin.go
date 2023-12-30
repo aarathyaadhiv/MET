@@ -9,10 +9,15 @@ type Admin struct {
 }
 
 type Subscription struct {
-	Id     uint    `json:"id" gorm:"primaryKey"`
-	Name   string  `json:"name"`
-	Amount float64 `json:"amount"`
-	Days   int     `json:"days"`
+	Id           uint    `json:"id" gorm:"primaryKey"`
+	Name         string  `json:"name"`
+	Amount       float64 `json:"amount"`
+	Days         int     `json:"days"`
+	Like         int     `json:"like"`
+	RewindCount  int     `json:"rewind_count"`
+	HideAdds     bool    `json:"hide_adds"`
+	PriorityLike bool    `json:"priority_like"`
+	SeeLike      bool    `json:"see_like"`
 }
 
 type Subscription_order struct {

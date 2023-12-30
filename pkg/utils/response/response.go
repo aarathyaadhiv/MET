@@ -57,3 +57,27 @@ type UserDetails struct {
 	Lattitude string    `json:"lattitude"`
 	Bio       string    `json:"bio"`
 }
+type ShowProfile struct{
+	UserDetails UserDetails
+	Image       []string
+}
+
+type Like struct{
+	UserId uint `json:"user_id"`
+	Liked_id uint `json:"liked_id"`
+}
+
+type ShowLike struct{
+	UserId uint `json:"user_id"`
+	Likes []ShowProfile `json:"likes"` 
+}
+
+type UnMatch struct{
+	UserId uint `json:"user_id"`
+	Matched_id uint `json:"matched_id"`
+}
+
+type ShowMatch struct{
+	UserId uint `json:"user_id"`
+	Matches []ShowProfile `json:"matches"` 
+}

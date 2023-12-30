@@ -44,3 +44,15 @@ type Images struct{
 	User User `json:"user" gorm:"foreignKey:UserId" `
 	Image string `json:"image" `
 }
+
+type Likes struct{
+	Id uint `json:"id" gorm:"primaryKey"`
+	UserId uint `json:"user_id"`
+	LikedId uint `json:"liked_id"`
+}
+
+type Match struct{
+	Id uint `json:"id" gorm:"primaryKey"`
+	UserId uint `json:"user_id"`
+	MatchId uint `json:"match_id"`
+}
