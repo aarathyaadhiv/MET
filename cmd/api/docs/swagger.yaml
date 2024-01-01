@@ -26,6 +26,13 @@ definitions:
     - code
     - ph_no
     type: object
+  models.Report:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
   response.Response:
     properties:
       data: {}
@@ -133,6 +140,39 @@ paths:
       tags:
       - User Management
   /admin/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves information about a single user based on the provided
+        ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved user information
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request or invalid ID format
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get a single user by ID
+      tags:
+      - User Management
     patch:
       consumes:
       - application/json
@@ -168,6 +208,152 @@ paths:
       summary: Block or unblock a user
       tags:
       - User Management
+  /block/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Blocks a user based on the provided ID
+      parameters:
+      - description: User ID to block
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully blocked user
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: String conversion failed
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Block a user
+      tags:
+      - Activity
+  /like:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves liked users for the authenticated user
+      parameters:
+      - description: Page number (default is 1)
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page (default is 3)
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved liked items
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get liked users for a user
+      tags:
+      - Likes
+  /like/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Likes an user based on the provided ID
+      parameters:
+      - description: Item ID to like
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully liked
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: String conversion failed
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Like an user
+      tags:
+      - Likes
+  /match:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves matched items for the authenticated user
+      parameters:
+      - description: Page number (default is 1)
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page (default is 3)
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved matched items
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get matched items for a user
+      tags:
+      - Match
   /profile:
     get:
       consumes:
@@ -246,7 +432,7 @@ paths:
         type: string
       - description: Image
         in: formData
-        name: image
+        name: images[]
         required: true
         type: file
       produces:
@@ -273,6 +459,102 @@ paths:
       summary: Add user profile details
       tags:
       - User Profile
+    put:
+      consumes:
+      - application/json
+      description: Update user profile information including phone number, city, country,
+        bio, interests, and images
+      parameters:
+      - description: Phone_number
+        in: formData
+        name: phone_number
+        type: string
+      - description: City
+        in: formData
+        name: city
+        type: string
+      - description: Country
+        in: formData
+        name: country
+        type: string
+      - description: Biography
+        in: formData
+        name: bio
+        type: string
+      - description: Comma-separated list of interests
+        in: formData
+        name: interests
+        type: string
+      - description: Images to upload
+        in: formData
+        name: images
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated user profile
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request or invalid data format
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user profile
+      tags:
+      - User Profile
+  /report/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Reports a user based on the provided ID
+      parameters:
+      - description: User ID to report
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Report details
+        in: body
+        name: report
+        required: true
+        schema:
+          $ref: '#/definitions/models.Report'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully reported
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: String conversion failed" or "Data provided is not in the correct
+            format
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Report a user
+      tags:
+      - Activity
   /sendOtp:
     post:
       consumes:
@@ -299,6 +581,41 @@ paths:
       summary: User Login
       tags:
       - User Authentication
+  /unmatch/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Unmatches with a user based on the provided ID
+      parameters:
+      - description: User ID to unmatch
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully unmatched
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: String conversion failed
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Unmatch with a user
+      tags:
+      - Match
   /verify:
     post:
       consumes:

@@ -9,12 +9,13 @@ import (
 func AdminRoutes(route *gin.RouterGroup, adminHandler handlerInterface.AdminHandler, authMiddleware middleInterface.AuthMiddleware) {
 	route.POST("/signUp", adminHandler.SignUp)
 	route.POST("/login", adminHandler.Login)
-	middleWare := authMiddleware.AdminAuthorization
-	route.Use(middleWare())
+	
+	route.Use(authMiddleware.AdminAuthorization())
 	{
 		user := route.Group("/users")
 		{
 			user.GET("", adminHandler.GetUsers)
+			user.GET("/:id",adminHandler.GetSingleUser)
 			user.PATCH("/:id", adminHandler.BlockOrUnBlock)
 		}
 	}

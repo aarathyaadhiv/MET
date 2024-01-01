@@ -42,7 +42,7 @@ func (a *AdminRepository) FetchAdmin(email string) (domain.Admin, error) {
 
 func (a *AdminRepository) BlockUser(id uint) (uint, error) {
 	var userId uint
-	if err := a.DB.Raw(`UPDATE users SET is_block=true WHERE id=? RETURNING id `,id).Scan(&userId).Error; err != nil {
+	if err := a.DB.Raw(`UPDATE users SET is_block=true WHERE id=? RETURNING id `, id).Scan(&userId).Error; err != nil {
 		return 0, err
 	}
 	return userId, nil
@@ -56,10 +56,10 @@ func (a *AdminRepository) UnblockUser(id uint) (uint, error) {
 	return userId, nil
 }
 
-func (a *AdminRepository) GetUsers(page,count int) ([]response.User, error) {
-	offset:=(page-1)*count
+func (a *AdminRepository) GetUsers(page, count int) ([]response.User, error) {
+	offset := (page - 1) * count
 	var users []response.User
-	if err := a.DB.Raw(`SELECT u.id,u.name,u.age,u.ph_no,g.name as gender,u.city,u.country,u.is_block FROM users as u JOIN genders as g ON u.gender_id=g.id limit ? offset ?`,count,offset).Scan(&users).Error; err != nil {
+	if err := a.DB.Raw(`SELECT u.id,u.name,u.age,u.ph_no,g.name as gender,u.city,u.country,u.is_block FROM users as u JOIN genders as g ON u.gender_id=g.id limit ? offset ?`, count, offset).Scan(&users).Error; err != nil {
 		return nil, err
 	}
 
@@ -72,4 +72,41 @@ func (a *AdminRepository) IsUserBlocked(id uint) (bool, error) {
 		return false, err
 	}
 	return isBlock, nil
+}
+
+func (a *AdminRepository) GetSingleUser(id uint) (response.UserDetailsToAdmin, error) {
+	var user response.UserDetailsToAdmin
+	if err := a.DB.Raw(`SELECT
+    u.id,
+    u.name,
+    u.dob,
+    u.age,
+    u.ph_no,
+    g.name AS gender,
+    u.city,
+    u.country,
+    u.longitude,
+    u.lattitude,
+    u.bio,
+    (
+        SELECT STRING_AGG(i.image, ', ' ORDER BY i.image)
+        FROM images AS i
+        WHERE i.user_id = u.id
+    ) AS images,
+    (
+        SELECT STRING_AGG(t.interest, ', ' ORDER BY t.interest)
+        FROM user_interests AS ut
+        JOIN interests AS t ON ut.interest_id = t.id
+        WHERE ut.user_id = u.id
+    ) AS interests
+FROM
+    users AS u
+JOIN
+    genders AS g ON g.id = u.gender_id
+WHERE
+    u.id = ?
+`, id).Scan(&user).Error; err != nil {
+		return response.UserDetailsToAdmin{}, err
+	}
+	return user, nil
 }

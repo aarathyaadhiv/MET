@@ -129,6 +129,8 @@ func (u *UserUseCase) AddProfile(profile models.Profile, id uint) (uint, error) 
 			return 0, errors.New("error in saving interest")
 		}
 	}
+	//add preference
+	
 	return userId, nil
 }
 
@@ -149,5 +151,48 @@ func (u *UserUseCase) ShowProfile(id uint)(response.Profile,error){
 		UserDetails: userDetails,
 		Image: images,
 		Interests: interests,
+	},nil
+}
+
+func (u *UserUseCase) UpdateUser(user models.UpdateUser,id uint)(response.Id,error){
+	users:=models.UpdateUserDetails{
+		PhNo: user.PhNo,
+		City: user.City,
+		Country: user.Country,
+		Bio: user.Bio,
+	}
+	err:=u.Repo.UpdateUserDetails(id,users)
+	if err!=nil{
+		return response.Id{},errors.New("error in fetching data")
+	}
+	err=u.Repo.DeleteImage(id)
+	if err!=nil{
+		return response.Id{},errors.New("error in fetching data")
+	}
+	for _, form := range user.Image.File {
+		for _, file := range form {
+			url, err := helper.AddImageToS3(file)
+			if err != nil {
+				fmt.Println("err", err)
+				return response.Id{}, errors.New("error in adding image")
+			}
+			err = u.Repo.AddImage(id, url)
+			if err != nil {
+				return response.Id{}, errors.New("error in saving image")
+			}
+		}
+	}
+	err=u.Repo.DeleteInterest(id)
+	if err!=nil{
+		return response.Id{},errors.New("error in fetching data")
+	}
+	for _, interest := range user.Interests {
+		err = u.Repo.AddInterest(id, interest)
+		if err != nil {
+			return response.Id{}, errors.New("error in saving interest")
+		}
+	}
+	return response.Id{
+		Id: id,
 	},nil
 }

@@ -15,9 +15,16 @@ type UserRepository interface{
 	CreateUserId(phNo string)(uint,error)
 	UpdateUser(id uint,profile models.ProfileSave)(uint,error)
 	AddInterest(id,interest uint)error
+	DeleteInterest(id uint)error
 	AddImage(id uint,image string)error
+	DeleteImage(id uint)error
 	ShowProfile(id uint)(response.UserDetails,error)
 	FetchImages(id uint)([]string,error)
 	FetchInterests(id uint)([]string,error)
 	IsBlocked(id uint)(bool,error)
+	UpdateLocation(id uint,location models.UpdateLocation)(uint, error)
+	UpdateUserDetails(id uint,user models.UpdateUserDetails)error
+	AddPreference(id uint, preference models.Preference) error 
+	UpdatePreference(id uint, preference models.Preference) (uint, error)
+	GetPreference(id uint) (models.Preference, error)
 }

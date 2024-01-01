@@ -12,4 +12,5 @@ type UserUseCase interface{
 	VerifyOtp(otp models.OtpVerify)(bool,response.Token,error)
 	AddProfile(profile models.Profile,id uint)(uint,error)
 	ShowProfile(id uint)(response.Profile,error)
+	UpdateUser(user models.UpdateUser,id uint)(response.Id,error)
 }

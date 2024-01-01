@@ -15,4 +15,5 @@ type AdminRepository interface{
 	UnblockUser(id uint)(uint,error)
 	GetUsers(page,count int)([]response.User,error)
 	IsUserBlocked(id uint)(bool,error)
+	GetSingleUser(id uint) (response.UserDetailsToAdmin, error)
 }

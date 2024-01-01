@@ -46,6 +46,7 @@ func (a *AdminHandler) SignUp(c *gin.Context) {
 	succRes := response.MakeResponse(http.StatusCreated, "successfully created admin", id, nil)
 	c.JSON(http.StatusCreated, succRes)
 }
+
 // @Summary Log in as an admin
 // @Description Log in as an admin with provided credentials
 // @Tags Admin Authentication
@@ -69,11 +70,12 @@ func (a *AdminHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errRes)
 		return
 	}
-	c.SetCookie("accessAdminToken",token.AccessToken,4500,"","",false,true)
-	c.SetCookie("refreshAdminToken",token.RefreshToken,4500,"","",false,true)
+	c.SetCookie("accessAdminToken", token.AccessToken, 4500, "", "", false, true)
+	c.SetCookie("refreshAdminToken", token.RefreshToken, 4500, "", "", false, true)
 	succRes := response.MakeResponse(http.StatusOK, "successfully login", token, nil)
 	c.JSON(http.StatusOK, succRes)
 }
+
 // @Summary Block or unblock a user
 // @Description Block or unblock a user based on the provided ID and block status
 // @Tags User Management
@@ -87,7 +89,9 @@ func (a *AdminHandler) Login(c *gin.Context) {
 // @Failure 500 {object} response.Response{} "Internal server error"
 // @Router /admin/users/{id} [patch]
 func (a *AdminHandler) BlockOrUnBlock(c *gin.Context) {
+
 	id, err := strconv.Atoi(c.Param("id"))
+
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusBadRequest, "boolean conversion failed", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
@@ -95,6 +99,7 @@ func (a *AdminHandler) BlockOrUnBlock(c *gin.Context) {
 	}
 
 	block, err := strconv.ParseBool(c.DefaultQuery("block", "false"))
+
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusBadRequest, "boolean conversion failed", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
@@ -102,6 +107,7 @@ func (a *AdminHandler) BlockOrUnBlock(c *gin.Context) {
 	}
 	if block {
 		res, err := a.UseCase.BlockUser(uint(id))
+
 		if err != nil {
 			errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
 			c.JSON(http.StatusInternalServerError, errRes)
@@ -112,6 +118,7 @@ func (a *AdminHandler) BlockOrUnBlock(c *gin.Context) {
 		return
 	}
 	res, err := a.UseCase.UnBlockUser(uint(id))
+
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errRes)
@@ -120,6 +127,7 @@ func (a *AdminHandler) BlockOrUnBlock(c *gin.Context) {
 	succRes := response.MakeResponse(http.StatusOK, "successfully unblocked user", res, nil)
 	c.JSON(http.StatusOK, succRes)
 }
+
 // @Summary Get all users to admin
 // @Description Retrieve all users
 // @Tags User Management
@@ -132,7 +140,7 @@ func (a *AdminHandler) BlockOrUnBlock(c *gin.Context) {
 // @Failure 400 {object} response.Response{} "int conversion failed"
 // @Failure 500 {object} response.Response{} "Internal server error"
 // @Router /admin/users [get]
-func (a *AdminHandler) GetUsers(c *gin.Context){
+func (a *AdminHandler) GetUsers(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 
 	if err != nil {
@@ -146,12 +154,40 @@ func (a *AdminHandler) GetUsers(c *gin.Context){
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	res,err:=a.UseCase.GetUsers(page,count)
-	if err!=nil{
-		errRes:=response.MakeResponse(http.StatusInternalServerError,"internal serverr error",nil,err.Error())
-		c.JSON(http.StatusInternalServerError,errRes)
+	res, err := a.UseCase.GetUsers(page, count)
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal serverr error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
 		return
 	}
-	succRes:=response.MakeResponse(http.StatusOK,"successfully showing users",res,nil)
-	c.JSON(http.StatusOK,succRes)
+	succRes := response.MakeResponse(http.StatusOK, "successfully showing users", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}
+// @Summary Get a single user by ID
+// @Description Retrieves information about a single user based on the provided ID
+// @Tags User Management
+// @Accept json
+// @Produce json
+// @Param id path integer true "User ID"
+// @Success 200 {object} response.Response{} "Successfully retrieved user information"
+// @Failure 400 {object} response.Response{} "Bad request or invalid ID format"
+// @Failure 404 {object} response.Response{} "User not found"
+// @Failure 500 {object} response.Response{} "Internal server error"
+// @Router /admin/users/{id} [get]
+func (a *AdminHandler) GetSingleUser(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "boolean conversion failed", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	res,err:=a.UseCase.GetSingleUser(uint(id))
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal serverr error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	succRes := response.MakeResponse(http.StatusOK, "successfully showing the user", res, nil)
+	c.JSON(http.StatusOK, succRes)
 }

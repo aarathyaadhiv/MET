@@ -8,4 +8,5 @@ type AdminHandler interface{
 	Login(c *gin.Context)
 	BlockOrUnBlock(c *gin.Context) 
 	GetUsers(c *gin.Context)
+	GetSingleUser(c *gin.Context)
 }

@@ -106,3 +106,11 @@ func (a *AdminUseCase) GetUsers(page,count int)([]response.User,error){
 	}
 	return res,nil
 }
+
+func (a *AdminUseCase) GetSingleUser(id uint)(response.UserDetailsToAdmin,error){
+	res,err:=a.Repo.GetSingleUser(id)
+	if err!=nil{
+		return response.UserDetailsToAdmin{},errors.New("error in fetching data ")
+	}
+	return res,nil
+}

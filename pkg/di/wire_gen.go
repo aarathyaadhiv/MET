@@ -30,6 +30,9 @@ func InitializeAPI(c config.Config) (*server.ServerHTTP, error) {
 	adminUseCase := usecase.NewAdminUseCase(adminRepository)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
 	authMiddleware := middleware.NewAuthMiddleware(userRepository)
-	serverHTTP := server.NewServerHTTP(userHandler, adminHandler, authMiddleware)
+	activityRepository := repository.NewActivityRepository(gormDB)
+	activityUseCase := usecase.NewActivityUseCase(activityRepository)
+	activityHandler := handler.NewActivityHandler(activityUseCase)
+	serverHTTP := server.NewServerHTTP(userHandler, adminHandler, authMiddleware, activityHandler)
 	return serverHTTP, nil
 }

@@ -25,7 +25,7 @@ func NewAuthMiddleware(userRepo interfaces.UserRepository) middleInterface.AuthM
 
 func (a *AuthMiddleware) AdminAuthorization() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		
+
 		accessTokens, err := c.Cookie("accessAdminToken")
 		if err != nil {
 			errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
@@ -54,28 +54,20 @@ func (a *AuthMiddleware) AdminAuthorization() gin.HandlerFunc {
 
 			claim, ok := accessToken.Claims.(*helper.AdminCustomClaim)
 			if !ok {
-				errRes := response.MakeResponse(http.StatusUnauthorized, "claim recovery failed", nil, err.Error())
+				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, "claim recovery failed")
 				c.JSON(http.StatusUnauthorized, errRes)
 				c.Abort()
 				return
 			}
 
 			if claim.Role == "user" {
-				errRes := response.MakeResponse(http.StatusUnauthorized, "it is not admin token", nil, err.Error())
+				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, "its not admin token")
 				c.JSON(http.StatusUnauthorized, errRes)
 				c.Abort()
 				return
 			}
 
 			id := claim.Id
-
-			block, err := a.UserRepository.IsBlocked(id)
-			if block {
-				errRes := response.MakeResponse(http.StatusUnauthorized, "claim recovery failed", nil, err.Error())
-				c.JSON(http.StatusUnauthorized, errRes)
-				c.Abort()
-				return
-			}
 
 			access, refresh, err := helper.GenerateAdminToken(id)
 			if err != nil {
@@ -93,13 +85,13 @@ func (a *AuthMiddleware) AdminAuthorization() gin.HandlerFunc {
 		}
 		claim, ok := accessToken.Claims.(*helper.AdminCustomClaim)
 		if !ok {
-			errRes := response.MakeResponse(http.StatusUnauthorized, "claim recovery failed", nil, err.Error())
+			errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, "claim recovery failed")
 			c.JSON(http.StatusUnauthorized, errRes)
 			c.Abort()
 			return
 		}
 		if claim.Role == "user" {
-			errRes := response.MakeResponse(http.StatusUnauthorized, "it is not admin token", nil, err.Error())
+			errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, "it is not admin token")
 			c.JSON(http.StatusUnauthorized, errRes)
 			c.Abort()
 			return

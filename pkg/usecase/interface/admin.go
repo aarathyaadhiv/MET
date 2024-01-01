@@ -12,4 +12,5 @@ type AdminUseCase interface{
 	BlockUser(id uint)(uint,error)
 	UnBlockUser(id uint)(uint,error)
 	GetUsers(page,count int)([]response.User,error)
+	GetSingleUser(id uint)(response.UserDetailsToAdmin,error)
 }

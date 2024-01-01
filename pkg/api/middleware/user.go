@@ -11,37 +11,38 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func UserAuthorization(c *gin.Context) {
-	tokenString := c.Request.Header.Get("Authorization")
-	config := config.Config{}
+// func UserAuthorization(c *gin.Context) {
+// 	tokenString := c.Request.Header.Get("Authorization")
+// 	config := config.Config{}
 
-	token, err := jwt.ParseWithClaims(tokenString, &helper.CustomUserClaim{}, func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected error function: %v", t.Header["alg"])
-		}
-		return []byte(config.JwtSecret), nil
-	})
-	if err != nil || !token.Valid {
-		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
-		c.JSON(http.StatusUnauthorized, errRes)
-		c.Abort()
-		return
-	}
-	claim, ok := token.Claims.(*helper.CustomUserClaim)
-	if !ok {
-		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
-		c.JSON(http.StatusUnauthorized, errRes)
-		c.Abort()
-		return
-	}
-	id := claim.Id
-	c.Set("userId", id)
-	c.Next()
-}
+//		token, err := jwt.ParseWithClaims(tokenString, &helper.CustomUserClaim{}, func(t *jwt.Token) (interface{}, error) {
+//			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+//				return nil, fmt.Errorf("unexpected error function: %v", t.Header["alg"])
+//			}
+//			return []byte(config.JwtSecret), nil
+//		})
+//		if err != nil || !token.Valid {
+//			errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
+//			c.JSON(http.StatusUnauthorized, errRes)
+//			c.Abort()
+//			return
+//		}
+//		claim, ok := token.Claims.(*helper.CustomUserClaim)
+//		if !ok {
+//			errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
+//			c.JSON(http.StatusUnauthorized, errRes)
+//			c.Abort()
+//			return
+//		}
+//		id := claim.Id
+//		c.Set("userId", id)
+//		c.Next()
+//	}
 func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		accessTokens, err := c.Cookie("accessToken")
+
 		if err != nil {
 			errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
 			c.JSON(http.StatusUnauthorized, errRes)
@@ -69,7 +70,7 @@ func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
 
 			claim, ok := refreshToken.Claims.(*helper.CustomUserClaim)
 			if !ok {
-				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
+				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, "it is not admin token")
 				c.JSON(http.StatusUnauthorized, errRes)
 				c.Abort()
 				return
@@ -78,8 +79,16 @@ func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
 			id := claim.Id
 
 			block, err := a.UserRepository.IsBlocked(id)
+			if err != nil {
+				errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, "error in block checking from repository")
+				c.JSON(http.StatusUnauthorized, errRes)
+				c.Abort()
+				return
+			}
+
 			if block {
-				errRes := response.MakeResponse(http.StatusUnauthorized, "claim recovery failed", nil, err.Error())
+
+				errRes := response.MakeResponse(http.StatusUnauthorized, "claim recovery failed", nil, "user is blocked")
 				c.JSON(http.StatusUnauthorized, errRes)
 				c.Abort()
 				return
@@ -101,7 +110,7 @@ func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
 		}
 		claim, ok := accessToken.Claims.(*helper.CustomUserClaim)
 		if !ok {
-			errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
+			errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, "error in claim recovery")
 			c.JSON(http.StatusUnauthorized, errRes)
 			c.Abort()
 			return
