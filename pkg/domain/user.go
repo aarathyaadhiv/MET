@@ -13,8 +13,8 @@ type User struct{
 	Gender Gender `json:"gender" gorm:"foreignKey:GenderId"`
 	City string `json:"city"`
 	Country string `json:"country"`
-	Longitude string `json:"longitude"`
-	Lattitude string `json:"lattitude"`
+	Longitude float64 `json:"longitude"`
+	Lattitude float64 `json:"lattitude"`
 	Bio string `json:"bio"`
 	IsBlock bool `json:"is_block" gorm:"default:false"`
 	ReportCount int `json:"report_count" gorm:"default:0"`

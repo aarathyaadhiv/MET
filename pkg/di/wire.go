@@ -26,6 +26,13 @@ func InitializeAPI(c config.Config) (*server.ServerHTTP, error) {
 		repository.NewActivityRepository,
 		usecase.NewActivityUseCase,
 		handler.NewActivityHandler,
+		repository.NewHomeRepository,
+		usecase.NewHomeUseCase,
+		handler.NewHomeHandler,
+		db.ConnectMongo,
+		repository.NewChatRepository,
+		usecase.NewChatUseCase,
+		handler.NewChatHandler,
 		middleware.NewAuthMiddleware,
 		server.NewServerHTTP,
 	)

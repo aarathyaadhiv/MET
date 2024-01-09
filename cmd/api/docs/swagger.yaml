@@ -26,6 +26,22 @@ definitions:
     - code
     - ph_no
     type: object
+  models.Preference:
+    properties:
+      gender:
+        type: integer
+      max_age:
+        type: integer
+      max_distance:
+        type: integer
+      min_age:
+        type: integer
+    required:
+    - gender
+    - max_age
+    - max_distance
+    - min_age
+    type: object
   models.Report:
     properties:
       message:
@@ -243,6 +259,41 @@ paths:
       summary: Block a user
       tags:
       - Activity
+  /home:
+    get:
+      consumes:
+      - application/json
+      description: Fetches the user's  home page to show the other user's profile
+        to make match
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Number of items per page (default: 3)'
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetched home page data
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 'Unauthorized: Invalid or missing authentication token'
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Display the home page for a user
+      tags:
+      - Home
   /like:
     get:
       consumes:
@@ -354,6 +405,66 @@ paths:
       summary: Get matched items for a user
       tags:
       - Match
+  /preference:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve user preferences such as distance and other criteria
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved preference
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user preferences
+      tags:
+      - User Preferences
+    put:
+      consumes:
+      - application/json
+      description: Update user preferences such as distance and other criteria
+      parameters:
+      - description: User preference details
+        in: body
+        name: preference
+        required: true
+        schema:
+          $ref: '#/definitions/models.Preference'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated preference
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Data is not in the required format
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user preferences
+      tags:
+      - User Preferences
   /profile:
     get:
       consumes:

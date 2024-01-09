@@ -140,7 +140,7 @@ func (u *UserRepository) AddPreference(id uint, preference models.Preference) er
 
 func (u *UserRepository) UpdatePreference(id uint, preference models.Preference) (uint, error) {
 	var userId uint
-	if err := u.DB.Raw(`UPDATE preferences SET min_age,max_age,gender,max_distance WHERE user_id=? RETURNING user_id`, preference.MinAge, preference.MaxAge, preference.Gender, preference.MaxDistance, id).Scan(&userId).Error; err != nil {
+	if err := u.DB.Raw(`UPDATE preferences SET min_age=?,max_age=?,gender=?,max_distance=? WHERE user_id=? RETURNING user_id`, preference.MinAge, preference.MaxAge, preference.Gender, preference.MaxDistance, id).Scan(&userId).Error; err != nil {
 		return 0, err
 	}
 	return userId, nil

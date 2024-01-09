@@ -20,8 +20,8 @@ type Profile struct {
 	GenderId  uint            `json:"gender_id" binding:"required" validate:"required"`
 	City      string          `json:"city" binding:"required" validate:"required"`
 	Country   string          `json:"country" binding:"required" validate:"required"`
-	Longitude string          `json:"longitude" binding:"required" validate:"required"`
-	Lattitude string          `json:"lattitude" binding:"required" validate:"required"`
+	Longitude float64         `json:"longitude" binding:"required" validate:"required"`
+	Lattitude float64         `json:"lattitude" binding:"required" validate:"required"`
 	Bio       string          `json:"bio" binding:"required" validate:"required"`
 	Image     *multipart.Form `json:"image" binding:"required" validate:"required"`
 	Interests []uint          `json:"interests" binding:"required" validate:"required"`
@@ -34,8 +34,8 @@ type ProfileSave struct {
 	GenderId  uint      `json:"gender_id" binding:"required" validate:"required"`
 	City      string    `json:"city" binding:"required" validate:"required"`
 	Country   string    `json:"country" binding:"required" validate:"required"`
-	Longitude string    `json:"longitude" binding:"required" validate:"required"`
-	Lattitude string    `json:"lattitude" binding:"required" validate:"required"`
+	Longitude float64   `json:"longitude" binding:"required" validate:"required"`
+	Lattitude float64   `json:"lattitude" binding:"required" validate:"required"`
 	Bio       string    `json:"bio" binding:"required" validate:"required"`
 }
 
@@ -44,8 +44,8 @@ type Report struct {
 }
 
 type UpdateLocation struct {
-	Longitude string `json:"longitude" binding:"required" validate:"required"`
-	Lattitude string `json:"lattitude" binding:"required" validate:"required"`
+	Longitude float64 `json:"longitude" binding:"required" validate:"required"`
+	Lattitude float64 `json:"lattitude" binding:"required" validate:"required"`
 }
 
 type UpdateUser struct {
@@ -65,8 +65,14 @@ type UpdateUserDetails struct {
 }
 
 type Preference struct {
-	MinAge      uint `json:"min_age"  binding:"required" validate:"required"`
-	MaxAge      uint `json:"max_age"  binding:"required" validate:"required"`
+	MinAge      int  `json:"min_age"  binding:"required" validate:"required"`
+	MaxAge      int  `json:"max_age"  binding:"required" validate:"required"`
 	Gender      uint `json:"gender"  binding:"required" validate:"required"`
-	MaxDistance uint `json:"max_distance"  binding:"required" validate:"required"`
+	MaxDistance int  `json:"max_distance"  binding:"required" validate:"required"`
+}
+
+type FetchUser struct {
+	Longitude float64 `json:"longitude" `
+	Lattitude float64 `json:"lattitude" `
+	Age       int     `json:"age"`
 }

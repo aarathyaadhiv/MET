@@ -13,12 +13,12 @@ type ServerHTTP struct {
 	engine *gin.Engine
 }
 
-func NewServerHTTP(userHandler handlerInterface.UserHandler, adminHandler handlerInterface.AdminHandler, authMiddleware middleInterface.AuthMiddleware,activityHandler handlerInterface.ActivityHandler) *ServerHTTP {
+func NewServerHTTP(userHandler handlerInterface.UserHandler, adminHandler handlerInterface.AdminHandler, authMiddleware middleInterface.AuthMiddleware,activityHandler handlerInterface.ActivityHandler,homeHandler handlerInterface.HomeHandler,chatHandler handlerInterface.ChatHandler) *ServerHTTP {
 	server := gin.New()
 	server.Use(gin.Logger())
 
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	routes.UserRoutes(server.Group("/"), userHandler,authMiddleware,activityHandler)
+	routes.UserRoutes(server.Group("/"), userHandler,authMiddleware,activityHandler,homeHandler,chatHandler)
 	routes.AdminRoutes(server.Group("/admin"), adminHandler, authMiddleware)
 
 	return &ServerHTTP{engine: server}

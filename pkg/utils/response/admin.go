@@ -22,8 +22,8 @@ type UserDetailsToAdmin struct {
 	Gender    string    `json:"gender"`
 	City      string    `json:"city"`
 	Country   string    `json:"country"`
-	Longitude string    `json:"longitude"`
-	Lattitude string    `json:"lattitude"`
+	Longitude float64   `json:"longitude"`
+	Lattitude float64   `json:"lattitude"`
 	Bio       string    `json:"bio"`
 	Images    string    `json:"image"`
 	Interests string    `json:"interests"`

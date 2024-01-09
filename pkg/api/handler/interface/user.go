@@ -12,4 +12,6 @@ type UserHandler interface{
 	AddProfile(c *gin.Context)
 	GetProfile(c *gin.Context)
 	UpdateUser(c *gin.Context)
+	UpdatePreference(c *gin.Context)
+	GetPreference(c *gin.Context)
 }

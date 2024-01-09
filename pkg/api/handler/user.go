@@ -129,8 +129,18 @@ func (u *UserHandler) AddProfile(c *gin.Context) {
 	profile.GenderId = uint(genderId)
 	profile.City = c.Request.FormValue("city")
 	profile.Country = c.Request.FormValue("country")
-	profile.Longitude = c.Request.FormValue("longitude")
-	profile.Lattitude = c.Request.FormValue("lattitude")
+	profile.Longitude, err = strconv.ParseFloat(c.Request.FormValue("longitude"), 64)
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	profile.Lattitude, err = strconv.ParseFloat(c.Request.FormValue("lattitude"), 64)
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
 	profile.Bio = c.Request.FormValue("bio")
 	interest := c.Request.FormValue("interests")
 	var interests []uint
@@ -248,5 +258,67 @@ func (u *UserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 	succRes := response.MakeResponse(http.StatusOK, "successfully updated profile", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}
+
+// @Summary Update user preferences
+// @Description Update user preferences such as distance and other criteria
+// @Tags User Preferences
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param preference body models.Preference true "User preference details"
+// @Success 200 {object} response.Response{} "Successfully updated preference"
+// @Failure 400 {object} response.Response{} "Data is not in the required format"
+// @Failure 401 {string} response.Response{} "Unauthorized"
+// @Failure 500 {object} response.Response{} "Internal server error"
+// @Router /preference [put]
+func (u *UserHandler) UpdatePreference(c *gin.Context) {
+	id, ok := c.Get("userId")
+	if !ok {
+		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, "error in retrieving user id")
+		c.JSON(http.StatusUnauthorized, errRes)
+		return
+	}
+	var preference models.Preference
+	if err := c.BindJSON(&preference); err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	res, err := u.UseCase.UpdatePreference(id.(uint), preference)
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	succRes := response.MakeResponse(http.StatusOK, "successfully updated preference", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}
+
+// @Summary Get user preferences
+// @Description Retrieve user preferences such as distance and other criteria
+// @Tags User Preferences
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response{} "Successfully retrieved preference"
+// @Failure 401 {string} response.Response{} "Unauthorized"
+// @Failure 500 {object} response.Response{} "Internal server error"
+// @Router /preference [get]
+func (u *UserHandler) GetPreference(c *gin.Context) {
+	id, ok := c.Get("userId")
+	if !ok {
+		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, "error in retrieving user id")
+		c.JSON(http.StatusUnauthorized, errRes)
+		return
+	}
+	res, err := u.UseCase.GetPreference(id.(uint))
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	succRes := response.MakeResponse(http.StatusOK, "successfully showing preference", res, nil)
 	c.JSON(http.StatusOK, succRes)
 }

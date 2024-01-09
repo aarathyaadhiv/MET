@@ -33,6 +33,16 @@ func InitializeAPI(c config.Config) (*server.ServerHTTP, error) {
 	activityRepository := repository.NewActivityRepository(gormDB)
 	activityUseCase := usecase.NewActivityUseCase(activityRepository)
 	activityHandler := handler.NewActivityHandler(activityUseCase)
-	serverHTTP := server.NewServerHTTP(userHandler, adminHandler, authMiddleware, activityHandler)
+	homeRepository := repository.NewHomeRepository(gormDB)
+	homeUseCase := usecase.NewHomeUseCase(homeRepository)
+	homeHandler := handler.NewHomeHandler(homeUseCase)
+	client, err := db.ConnectMongo(c)
+	if err != nil {
+		return nil, err
+	}
+	chatRepository := repository.NewChatRepository(client)
+	chatUseCase := usecase.NewChatUseCase(chatRepository)
+	chatHandler := handler.NewChatHandler(chatUseCase)
+	serverHTTP := server.NewServerHTTP(userHandler, adminHandler, authMiddleware, activityHandler, homeHandler, chatHandler)
 	return serverHTTP, nil
 }

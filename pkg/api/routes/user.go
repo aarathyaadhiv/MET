@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler, authMiddleware middleInterface.AuthMiddleware, activityHandler handlerInterface.ActivityHandler) {
+func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler, authMiddleware middleInterface.AuthMiddleware, activityHandler handlerInterface.ActivityHandler, homeHandler handlerInterface.HomeHandler,chatHandler handlerInterface.ChatHandler) {
 	route.POST("/sendOtp", userHandler.SendOtp)
 	route.POST("/verify", userHandler.VerifyOtp)
 	route.Use(authMiddleware.UserAuthorization())
@@ -15,13 +15,19 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 		{
 			profile.POST("", userHandler.AddProfile)
 			profile.GET("", userHandler.GetProfile)
-			profile.PUT("",userHandler.UpdateUser)
+			profile.PUT("", userHandler.UpdateUser)
 		}
 		like := route.Group("/like")
 		{
 			like.POST("/:id", activityHandler.Like)
 			like.GET("", activityHandler.GetLike)
 		}
+		preference := route.Group("/preference")
+		{
+			preference.PUT("", userHandler.UpdatePreference)
+			preference.GET("", userHandler.GetPreference)
+		}
+		route.GET("/home", homeHandler.Home)
 		route.DELETE("/unmatch/:id", activityHandler.Unmatch)
 		route.GET("/match", activityHandler.GetMatch)
 		route.POST("/report/:id", activityHandler.Report)

@@ -130,7 +130,18 @@ func (u *UserUseCase) AddProfile(profile models.Profile, id uint) (uint, error) 
 		}
 	}
 	//add preference
-	
+	minAge,maxAge:=helper.MinAndMaxAge(age)
+	gender:=helper.Gender(profile.GenderId)
+	preference:=models.Preference{
+		MinAge: minAge,
+		MaxAge: maxAge,
+		Gender: gender,
+		MaxDistance: 15,
+	}
+	err=u.Repo.AddPreference(userId,preference)
+	if err!=nil{
+		return 0,errors.New("error in add preference")
+	}
 	return userId, nil
 }
 
@@ -195,4 +206,22 @@ func (u *UserUseCase) UpdateUser(user models.UpdateUser,id uint)(response.Id,err
 	return response.Id{
 		Id: id,
 	},nil
+}
+
+func (u *UserUseCase)UpdatePreference(id uint,preference models.Preference)(response.Id,error){
+	userId,err:=u.Repo.UpdatePreference(id,preference)
+	if err!=nil{
+		return response.Id{},err
+	}
+	return response.Id{
+		Id: userId,
+		},nil
+}
+
+func (u *UserUseCase) GetPreference(id uint)(models.Preference,error){
+	res,err:=u.Repo.GetPreference(id)
+	if err!=nil{
+		return models.Preference{},err
+	}
+	return res,nil
 }
