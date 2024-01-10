@@ -13,3 +13,4 @@ type ChatUseCase struct{
 func NewChatUseCase(repo interfaces.ChatRepository)useCaseInterface.ChatUseCase{
 	return &ChatUseCase{repo}
 }
+

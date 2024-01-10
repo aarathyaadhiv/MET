@@ -13,3 +13,7 @@ type ChatRepository struct{
 func NewChatRepository(db *mongo.Client)interfaces.ChatRepository{
 	return &ChatRepository{db}
 }
+
+func (c *ChatRepository) CreateChatRoom()(){
+	
+}
