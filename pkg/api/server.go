@@ -25,5 +25,5 @@ func NewServerHTTP(userHandler handlerInterface.UserHandler, adminHandler handle
 }
 
 func (s *ServerHTTP) Start() {
-	s.engine.Run(":3000")
+	s.engine.Run(":3001")
 }
