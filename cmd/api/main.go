@@ -13,8 +13,8 @@ func main() {
 	docs.SwaggerInfo.Title = "MET"
 	docs.SwaggerInfo.Description = "Dating App"
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:3001"
-	docs.SwaggerInfo.BasePath = ""
+	// docs.SwaggerInfo.Host = "localhost:3001"
+	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"http"}
 	err := godotenv.Load()
 
