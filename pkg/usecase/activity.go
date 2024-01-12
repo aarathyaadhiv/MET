@@ -9,11 +9,12 @@ import (
 )
 
 type ActivityUseCase struct {
-	Lik interfaces.ActivityRepository
+	Lik  interfaces.ActivityRepository
+	Chat interfaces.ChatRepository
 }
 
-func NewActivityUseCase(like interfaces.ActivityRepository) useCaseInterface.ActivityUseCase {
-	return &ActivityUseCase{Lik: like}
+func NewActivityUseCase(like interfaces.ActivityRepository, chat interfaces.ChatRepository) useCaseInterface.ActivityUseCase {
+	return &ActivityUseCase{Lik: like, Chat: chat}
 }
 
 func (l *ActivityUseCase) Like(likedId, userId uint) (response.Like, error) {
@@ -38,6 +39,11 @@ func (l *ActivityUseCase) Like(likedId, userId uint) (response.Like, error) {
 			return response.Like{}, errors.New("error in connecting database")
 		}
 		err = l.Lik.Match(likedId, userId)
+		if err != nil {
+			return response.Like{}, errors.New("error in connecting database")
+		}
+		
+		err = l.Chat.CreateChatRoom(userId, likedId)
 		if err != nil {
 			return response.Like{}, errors.New("error in connecting database")
 		}

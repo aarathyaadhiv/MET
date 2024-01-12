@@ -76,3 +76,9 @@ type FetchUser struct {
 	Lattitude float64 `json:"lattitude" `
 	Age       int     `json:"age"`
 }
+
+type UserShortDetail struct {
+	Id    uint   `json:"id"`
+	Name  string `json:"name"`
+	Image string `json:"image"`
+}

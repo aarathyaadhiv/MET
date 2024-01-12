@@ -32,5 +32,14 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 		route.GET("/match", activityHandler.GetMatch)
 		route.POST("/report/:id", activityHandler.Report)
 		route.POST("/block/:id", activityHandler.BlockUser)
+		
+		chat:=route.Group("/chat")
+		{
+			chat.GET("",chatHandler.GetChats)
+			chat.GET("/:chatId/message",chatHandler.GetMessages)
+			chat.POST("/:chatId/message",chatHandler.SendMessage)
+			chat.PATCH("/message/read",chatHandler.MakeMessageRead)
+		}
+		
 	}
 }

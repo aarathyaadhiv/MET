@@ -9,6 +9,18 @@ definitions:
     - email
     - password
     type: object
+  models.MakeReadReq:
+    properties:
+      message_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  models.Message:
+    properties:
+      message:
+        type: string
+    type: object
   models.OtpRequest:
     properties:
       ph_no:
@@ -259,6 +271,138 @@ paths:
       summary: Block a user
       tags:
       - Activity
+  /chat:
+    get:
+      consumes:
+      - application/json
+      description: Get all chats associated with the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully showing chats of the user
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: unauthorised
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user's chats
+      tags:
+      - Chat
+  /chat/{chatId}/message:
+    get:
+      consumes:
+      - application/json
+      description: Get all messages in a chat based on the provided chatId.
+      parameters:
+      - description: chatID
+        format: objectId
+        in: path
+        name: chatId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully showing messages in the given chatId
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: string converrsion failed
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get messages in a chat
+      tags:
+      - Chat
+    post:
+      consumes:
+      - application/json
+      description: Sends a message in the specified chat.
+      operationId: sendMessage
+      parameters:
+      - description: chatID
+        format: objectId
+        in: path
+        name: chatId
+        required: true
+        type: string
+      - description: Message object
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Message'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully sent message
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Send a message in a chat
+      tags:
+      - Chat
+  /chat/message/read:
+    post:
+      consumes:
+      - application/json
+      description: Marks specified messages as read by the user.
+      operationId: makeMessageRead
+      parameters:
+      - description: Message IDs to mark as read
+        in: body
+        name: messageIds
+        required: true
+        schema:
+          $ref: '#/definitions/models.MakeReadReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully marked messages as read
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Mark messages as read
+      tags:
+      - Chat
   /home:
     get:
       consumes:
@@ -525,12 +669,12 @@ paths:
         in: formData
         name: longitude
         required: true
-        type: string
+        type: number
       - description: Latitude
         in: formData
         name: lattitude
         required: true
-        type: string
+        type: number
       - description: Bio
         in: formData
         name: bio

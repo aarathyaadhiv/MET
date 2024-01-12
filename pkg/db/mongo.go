@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-func ConnectMongo(c config.Config) (*mongo.Client, error) {
+func ConnectMongo(c config.Config) (*mongo.Database, error) {
 	ctx := context.TODO()
 	mongoConn := options.Client().ApplyURI(c.DB_URL)
 	mongoClient, err := mongo.Connect(ctx, mongoConn)
@@ -22,5 +22,6 @@ func ConnectMongo(c config.Config) (*mongo.Client, error) {
 		return nil, err
 	}
 	fmt.Println("mongo connection established")
-	return mongoClient, nil
+	
+	return mongoClient.Database(c.DBName), nil
 }

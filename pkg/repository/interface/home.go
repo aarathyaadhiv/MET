@@ -13,4 +13,5 @@ type HomeRepository interface{
 	FetchImages(id uint) ([]string, error)
 	FetchInterests(id uint) ([]uint, error)
 	IsLikeExist(userId, likedId uint) (bool, error)
+	IsBlocked(userId, blockedId uint) (bool, error)
 }

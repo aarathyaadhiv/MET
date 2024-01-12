@@ -31,17 +31,17 @@ func InitializeAPI(c config.Config) (*server.ServerHTTP, error) {
 	adminHandler := handler.NewAdminHandler(adminUseCase)
 	authMiddleware := middleware.NewAuthMiddleware(userRepository)
 	activityRepository := repository.NewActivityRepository(gormDB)
-	activityUseCase := usecase.NewActivityUseCase(activityRepository)
+	database, err := db.ConnectMongo(c)
+	if err != nil {
+		return nil, err
+	}
+	chatRepository := repository.NewChatRepository(database)
+	activityUseCase := usecase.NewActivityUseCase(activityRepository, chatRepository)
 	activityHandler := handler.NewActivityHandler(activityUseCase)
 	homeRepository := repository.NewHomeRepository(gormDB)
 	homeUseCase := usecase.NewHomeUseCase(homeRepository)
 	homeHandler := handler.NewHomeHandler(homeUseCase)
-	client, err := db.ConnectMongo(c)
-	if err != nil {
-		return nil, err
-	}
-	chatRepository := repository.NewChatRepository(client)
-	chatUseCase := usecase.NewChatUseCase(chatRepository)
+	chatUseCase := usecase.NewChatUseCase(chatRepository, userRepository)
 	chatHandler := handler.NewChatHandler(chatUseCase)
 	serverHTTP := server.NewServerHTTP(userHandler, adminHandler, authMiddleware, activityHandler, homeHandler, chatHandler)
 	return serverHTTP, nil

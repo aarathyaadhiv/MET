@@ -27,4 +27,5 @@ type UserRepository interface{
 	AddPreference(id uint, preference models.Preference) error 
 	UpdatePreference(id uint, preference models.Preference) (uint, error)
 	GetPreference(id uint) (models.Preference, error)
+	FetchShortDetail(id uint)(models.UserShortDetail,error)
 }

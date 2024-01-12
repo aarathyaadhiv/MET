@@ -38,6 +38,13 @@ func (h *HomeUseCase) HomePage(id uint, page, count int) ([]response.Home, error
 	scores := make([]float64, 0)
 	matchUsers := make([]response.Home, 0)
 	for _, u := range users {
+		block, err := h.Repo.IsBlocked(id, u.Id)
+		if err != nil {
+			return nil, errors.New("error in fetching match data")
+		}
+		if block {
+			continue
+		}
 		like, err := h.Repo.IsLikeExist(id, u.Id)
 		if err != nil {
 			return nil, errors.New("error in fetching match data")

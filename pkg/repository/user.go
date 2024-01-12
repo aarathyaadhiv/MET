@@ -154,3 +154,11 @@ func (u *UserRepository) GetPreference(id uint) (models.Preference, error) {
 	}
 	return preference, nil
 }
+
+func (u *UserRepository) FetchShortDetail(id uint)(models.UserShortDetail,error){
+	var user models.UserShortDetail
+	if err:=u.DB.Raw(`SELECT u.id,u.name,i.image FROM users AS u JOIN images AS i ON i.user_id=u.id WHERE u.id=? `,id).Scan(&user).Error;err!=nil{
+		return models.UserShortDetail{},err
+	}
+	return user,nil
+}

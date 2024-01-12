@@ -67,3 +67,11 @@ func (h *HomeRepository) IsLikeExist(userId, likedId uint) (bool, error) {
 	}
 	return count > 0, nil
 }
+
+func (h *HomeRepository) IsBlocked(userId, blockedId uint) (bool, error) {
+	var count int
+	if err := h.DB.Raw(`SELECT COUNT(*) FROM blocked_users WHERE user_id=? AND blocked_id=?`, userId, blockedId).Scan(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
