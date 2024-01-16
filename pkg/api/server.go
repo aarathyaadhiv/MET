@@ -1,6 +1,8 @@
 package server
 
 import (
+	"net/http"
+
 	handlerInterface "github.com/aarathyaadhiv/met/pkg/api/handler/interface"
 	middleInterface "github.com/aarathyaadhiv/met/pkg/api/middleware/interface"
 	"github.com/aarathyaadhiv/met/pkg/api/routes"
@@ -13,12 +15,16 @@ type ServerHTTP struct {
 	engine *gin.Engine
 }
 
-func NewServerHTTP(userHandler handlerInterface.UserHandler, adminHandler handlerInterface.AdminHandler, authMiddleware middleInterface.AuthMiddleware,activityHandler handlerInterface.ActivityHandler,homeHandler handlerInterface.HomeHandler,chatHandler handlerInterface.ChatHandler) *ServerHTTP {
+func NewServerHTTP(userHandler handlerInterface.UserHandler, adminHandler handlerInterface.AdminHandler, authMiddleware middleInterface.AuthMiddleware, activityHandler handlerInterface.ActivityHandler, homeHandler handlerInterface.HomeHandler, chatHandler handlerInterface.ChatHandler) *ServerHTTP {
 	server := gin.New()
+	server.LoadHTMLGlob("templates/*")
+	server.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", nil) // Render the "chat.html" template
+	})
 	server.Use(gin.Logger())
 
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	routes.UserRoutes(server.Group("/"), userHandler,authMiddleware,activityHandler,homeHandler,chatHandler)
+	routes.UserRoutes(server.Group("/"), userHandler, authMiddleware, activityHandler, homeHandler, chatHandler)
 	routes.AdminRoutes(server.Group("/admin"), adminHandler, authMiddleware)
 
 	return &ServerHTTP{engine: server}

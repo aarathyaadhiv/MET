@@ -40,14 +40,14 @@ func (c *ChatRepository) IsChatExist(user1, user2 uint) (bool, error) {
 	err := c.ChatCollection.FindOne(context.TODO(), filter).Decode(&chat)
 
 	if err == mongo.ErrNoDocuments {
-		// Chat not found
+		
 		return false, nil
 	} else if err != nil {
-		// An error occurred
+		
 		return false, err
 	}
 
-	// Chat found
+	
 	return true, nil
 }
 
@@ -97,13 +97,13 @@ func (c *ChatRepository) SaveMessage(message domain.Messages) (primitive.ObjectI
 }
 
 func (c *ChatRepository) ReadMessage(id primitive.ObjectID, userId uint) (primitive.ObjectID, error) {
-	// Query to find the message with the given ID
+	
 	filter := bson.M{"_id": id, "sender_id": bson.M{"$ne": userId}}
 
-	// Update to set the "seen" field to true
+	
 	update := bson.M{"$set": bson.M{"seen": true}}
 
-	// Update the document
+	
 	res, err := c.MessageCollection.UpdateOne(context.TODO(), filter, update)
 
 	if err != nil {
@@ -111,4 +111,16 @@ func (c *ChatRepository) ReadMessage(id primitive.ObjectID, userId uint) (primit
 	}
 	return res.UpsertedID.(primitive.ObjectID), nil
 
+}
+
+
+func (c *ChatRepository) FetchRecipient(chatId primitive.ObjectID,userId uint)(uint,error){
+	filter:=bson.M{"_id":chatId}
+	projection := bson.M{"_id": 0, "users": bson.M{"$elemMatch": bson.M{"$ne": userId}}, "created_at": 0}
+
+	chat:=domain.Chats{}
+	c.ChatCollection.FindOne(context.TODO(),filter,options.FindOne().SetProjection(projection)).Decode(&chat)
+	
+	return chat.Users[0],nil
+	
 }

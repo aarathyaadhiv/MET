@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	handlerInterface "github.com/aarathyaadhiv/met/pkg/api/handler/interface"
@@ -8,15 +9,32 @@ import (
 	"github.com/aarathyaadhiv/met/pkg/utils/models"
 	"github.com/aarathyaadhiv/met/pkg/utils/response"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+type client struct {
+	ChatId primitive.ObjectID
+	UserId uint
+}
+
+var connection = make(map[*websocket.Conn]*client)
+var user = make(map[uint]*websocket.Conn)
 
 type ChatHandler struct {
 	UseCase useCaseInterface.ChatUseCase
 }
 
 func NewChatHandler(usecase useCaseInterface.ChatUseCase) handlerInterface.ChatHandler {
-	return &ChatHandler{usecase}
+	return &ChatHandler{UseCase: usecase}
 }
 
 // @Summary Get user's chats
@@ -150,4 +168,66 @@ func (t *ChatHandler) MakeMessageRead(c *gin.Context) {
 	}
 	succRes := response.MakeResponse(http.StatusOK, "successfully make these messages to read", res, nil)
 	c.JSON(http.StatusOK, succRes)
+}
+
+// @Summary Handle WebSocket connection for chat
+// @Description Handles WebSocket connection for chat and processes incoming messages
+// @ID chat-websocket
+// @Tags Chat
+// @Accept json
+// @Produce json
+// @Param chatId path string true "Chat ID"
+// @Success 200 {object} response.Response{}
+// @Failure 400 {object} response.Response{}
+// @Failure 401 {object} response.Response{}
+// @Router /ws/{chatId} [get]
+func (t *ChatHandler) Chat(c *gin.Context) {
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	id, ok := c.Get("userId")
+	if !ok {
+		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, "error in retrieving user id")
+		c.JSON(http.StatusUnauthorized, errRes)
+		return
+	}
+	chatId, err := primitive.ObjectIDFromHex(c.Param("chatId"))
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "string conversion failed", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	connection[conn] = &client{ChatId: chatId, UserId: id.(uint)}
+	user[id.(uint)] = conn
+	
+	go func() {
+
+		for {
+			_, msg, err := conn.ReadMessage()
+			if err != nil {
+				break
+			}
+			userId := connection[conn].UserId
+			chatID := connection[conn].ChatId
+			_, err = t.UseCase.SaveMessage(chatID, userId, string(msg))
+			if err != nil {
+				log.Fatal("error in saving message")
+			}
+			conn.WriteMessage(websocket.TextMessage,msg)
+			recipient, err := t.UseCase.FetchRecipient(chatID, userId)
+			if err != nil {
+				log.Fatal("error in fetching recipient id")
+			}
+			if value, ok := user[recipient]; ok {
+				err = value.WriteMessage(websocket.TextMessage, msg)
+				if err != nil {
+					delete(connection, value)
+					delete(user, recipient)
+				}
+			}
+		}
+	}()
 }

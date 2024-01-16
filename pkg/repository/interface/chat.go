@@ -13,4 +13,5 @@ type ChatRepository interface {
 	IsChatExist(user1,user2 uint)(bool,error)
 	SaveMessage(message domain.Messages)(primitive.ObjectID,error)
 	ReadMessage(id primitive.ObjectID,userId uint)(primitive.ObjectID,error)
+	FetchRecipient(chatId primitive.ObjectID,userId uint)(uint,error)
 }

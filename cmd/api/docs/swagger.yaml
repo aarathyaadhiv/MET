@@ -906,4 +906,34 @@ paths:
       summary: Verify OTP
       tags:
       - User Authentication
+  /ws/{chatId}:
+    get:
+      consumes:
+      - application/json
+      description: Handles WebSocket connection for chat and processes incoming messages
+      operationId: chat-websocket
+      parameters:
+      - description: Chat ID
+        in: path
+        name: chatId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Handle WebSocket connection for chat
+      tags:
+      - Chat
 swagger: "2.0"

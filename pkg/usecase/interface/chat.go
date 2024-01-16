@@ -11,4 +11,5 @@ type ChatUseCase interface {
 	GetMessages(chatId primitive.ObjectID) ([]domain.Messages, error)
 	SaveMessage(chatId primitive.ObjectID,senderId uint,message string)(primitive.ObjectID,error)
 	ReadMessage(userId uint,messages []primitive.ObjectID)([]primitive.ObjectID,error)
+	FetchRecipient(chatId primitive.ObjectID,userId uint)(uint,error)
 }

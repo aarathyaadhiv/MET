@@ -40,6 +40,6 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 			chat.POST("/:chatId/message",chatHandler.SendMessage)
 			chat.PATCH("/message/read",chatHandler.MakeMessageRead)
 		}
-		
+		route.GET("/ws/:chatId",chatHandler.Chat)
 	}
 }
