@@ -25,10 +25,34 @@ func (l *ActivityUseCase) Like(likedId, userId uint) (response.Like, error) {
 	if isExist {
 		return response.Like{}, errors.New("liked already")
 	}
-	res, err := l.Lik.Like(likedId, userId)
+	isSubscribed, err := l.Lik.IsSubscribed(userId)
 	if err != nil {
 		return response.Like{}, errors.New("error in connecting database")
 	}
+	var res response.Like
+	if !isSubscribed {
+		likes, err := l.Lik.LikeCount(userId)
+		if err != nil {
+			return response.Like{}, errors.New("error in connecting database")
+		}
+		if likes == 0 {
+			return response.Like{}, errors.New("your like limit exceeded")
+		}
+		res, err = l.Lik.Like(likedId, userId)
+		if err != nil {
+			return response.Like{}, errors.New("error in connecting database")
+		}
+		err = l.Lik.UpdateLikeCount(userId, likes-1)
+		if err != nil {
+			return response.Like{}, errors.New("error in connecting database")
+		}
+	} else {
+		res, err = l.Lik.Like(likedId, userId)
+		if err != nil {
+			return response.Like{}, errors.New("error in connecting database")
+		}
+	}
+
 	exist, err := l.Lik.IsLikeExist(likedId, userId)
 	if err != nil {
 		return response.Like{}, errors.New("error in connecting database")
@@ -42,7 +66,7 @@ func (l *ActivityUseCase) Like(likedId, userId uint) (response.Like, error) {
 		if err != nil {
 			return response.Like{}, errors.New("error in connecting database")
 		}
-		
+
 		err = l.Chat.CreateChatRoom(userId, likedId)
 		if err != nil {
 			return response.Like{}, errors.New("error in connecting database")
@@ -74,6 +98,20 @@ func (l *ActivityUseCase) Unlike(likeId, userId uint) (response.Like, error) {
 }
 
 func (l *ActivityUseCase) GetLike(page, count int, userId uint) (response.ShowLike, error) {
+	isSubscribed, err := l.Lik.IsSubscribed(userId)
+	if err != nil {
+		return response.ShowLike{}, errors.New("error in fetching data from database")
+	}
+	if !isSubscribed {
+		return response.ShowLike{}, errors.New("to see likes take subscription")
+	}
+	seeLike, err := l.Lik.SeeLike(userId)
+	if err != nil {
+		return response.ShowLike{}, errors.New("error in fetching data from database")
+	}
+	if !seeLike {
+		return response.ShowLike{}, errors.New("to see likes upgrade your plan")
+	}
 	res, err := l.Lik.GetLike(page, count, userId)
 	if err != nil {
 		return response.ShowLike{}, errors.New("error in fetching data from database")

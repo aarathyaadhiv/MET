@@ -13,14 +13,15 @@ type Subscription struct {
 	Name         string  `json:"name"`
 	Amount       float64 `json:"amount"`
 	Days         int     `json:"days"`
-	Like         int     `json:"like"`
+	Likes        int     `json:"likes"`
 	RewindCount  int     `json:"rewind_count"`
 	HideAdds     bool    `json:"hide_adds"`
 	PriorityLike bool    `json:"priority_like"`
 	SeeLike      bool    `json:"see_like"`
+	IsActive     bool    `json:"is_active" gorm:"default:true"`
 }
 
-type Subscription_order struct {
+type SubscriptionOrder struct {
 	Id             uint         `json:"id" gorm:"primaryKey"`
 	SubscriptionId uint         `json:"subscription_id"`
 	Subscription   Subscription `json:"subscription" gorm:"foreignKey:SubscriptionId"`

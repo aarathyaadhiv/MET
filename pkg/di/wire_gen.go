@@ -43,6 +43,9 @@ func InitializeAPI(c config.Config) (*server.ServerHTTP, error) {
 	homeHandler := handler.NewHomeHandler(homeUseCase)
 	chatUseCase := usecase.NewChatUseCase(chatRepository, userRepository)
 	chatHandler := handler.NewChatHandler(chatUseCase)
-	serverHTTP := server.NewServerHTTP(userHandler, adminHandler, authMiddleware, activityHandler, homeHandler, chatHandler)
+	subscriptionRepository := repository.NewSubscriptionRepository(gormDB)
+	subscriptionUseCase := usecase.NewSubscriptionUseCase(subscriptionRepository, c)
+	subscriptionHandler := handler.NewSubscriptionHandler(subscriptionUseCase)
+	serverHTTP := server.NewServerHTTP(userHandler, adminHandler, authMiddleware, activityHandler, homeHandler, chatHandler, subscriptionHandler)
 	return serverHTTP, nil
 }

@@ -15,7 +15,7 @@ type ServerHTTP struct {
 	engine *gin.Engine
 }
 
-func NewServerHTTP(userHandler handlerInterface.UserHandler, adminHandler handlerInterface.AdminHandler, authMiddleware middleInterface.AuthMiddleware, activityHandler handlerInterface.ActivityHandler, homeHandler handlerInterface.HomeHandler, chatHandler handlerInterface.ChatHandler) *ServerHTTP {
+func NewServerHTTP(userHandler handlerInterface.UserHandler, adminHandler handlerInterface.AdminHandler, authMiddleware middleInterface.AuthMiddleware, activityHandler handlerInterface.ActivityHandler, homeHandler handlerInterface.HomeHandler, chatHandler handlerInterface.ChatHandler,subscriptionHandler handlerInterface.SubscriptionHandler) *ServerHTTP {
 	server := gin.New()
 	server.LoadHTMLGlob("templates/*")
 	server.GET("/", func(c *gin.Context) {
@@ -24,8 +24,8 @@ func NewServerHTTP(userHandler handlerInterface.UserHandler, adminHandler handle
 	server.Use(gin.Logger())
 
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	routes.UserRoutes(server.Group("/"), userHandler, authMiddleware, activityHandler, homeHandler, chatHandler)
-	routes.AdminRoutes(server.Group("/admin"), adminHandler, authMiddleware)
+	routes.UserRoutes(server.Group("/"), userHandler, authMiddleware, activityHandler, homeHandler, chatHandler,subscriptionHandler)
+	routes.AdminRoutes(server.Group("/admin"), adminHandler, authMiddleware,subscriptionHandler)
 
 	return &ServerHTTP{engine: server}
 }

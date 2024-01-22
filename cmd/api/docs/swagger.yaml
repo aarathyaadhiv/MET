@@ -16,11 +16,6 @@ definitions:
           type: string
         type: array
     type: object
-  models.Message:
-    properties:
-      message:
-        type: string
-    type: object
   models.OtpRequest:
     properties:
       ph_no:
@@ -60,6 +55,19 @@ definitions:
         type: string
     required:
     - message
+    type: object
+  models.Subscription:
+    properties:
+      amount:
+        type: number
+      days:
+        type: integer
+      like:
+        type: integer
+      name:
+        type: string
+      see_like:
+        type: boolean
     type: object
   response.Response:
     properties:
@@ -103,6 +111,54 @@ paths:
       summary: Log in as an admin
       tags:
       - Admin Authentication
+  /admin/reported-users:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of reported users
+      operationId: get-reported-users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully showing reported users
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get reported users
+      tags:
+      - Report Management
+  /admin/reported-users/{reportId}:
+    get:
+      description: Get details of a reported user by ID
+      operationId: get-reported-user
+      parameters:
+      - description: Report ID
+        in: path
+        name: reportId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully showing the reported user
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: string conversion failed
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get reported user by ID
+      tags:
+      - Report Management
   /admin/signUp:
     post:
       consumes:
@@ -133,6 +189,157 @@ paths:
       summary: Create a new admin
       tags:
       - Admin Authentication
+  /admin/subscription:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all subscriptions in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get all subscriptions
+      tags:
+      - Subscription Management
+    post:
+      consumes:
+      - application/json
+      description: Add a new subscription to the system
+      parameters:
+      - description: Subscription object in JSON format
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/models.Subscription'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Add a new subscription
+      tags:
+      - Subscription Management
+  /admin/subscription/{subscriptionId}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a subscription by its ID
+      parameters:
+      - description: Subscription ID
+        format: int64
+        in: path
+        minimum: 1
+        name: subscriptionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get a subscription by ID
+      tags:
+      - Subscription Management
+    patch:
+      consumes:
+      - application/json
+      description: Activate or deactivate a subscription in the system. Use 'true'
+        to activate and 'false' to deactivate.
+      parameters:
+      - description: Subscription ID
+        format: int64
+        in: path
+        minimum: 1
+        name: subscriptionId
+        required: true
+        type: integer
+      - description: Activate the subscription (use 'true' for activation, 'false'
+          for deactivation)
+        in: query
+        name: activate
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Activate or deactivate a subscription
+      tags:
+      - Subscription Management
+    put:
+      consumes:
+      - application/json
+      description: Update an existing subscription in the system
+      parameters:
+      - description: Subscription ID
+        format: int64
+        in: path
+        minimum: 1
+        name: subscriptionId
+        required: true
+        type: integer
+      - description: Subscription object in JSON format
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/models.Subscription'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update an existing subscription
+      tags:
+      - Subscription Management
   /admin/users:
     get:
       consumes:
@@ -326,46 +533,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get messages in a chat
-      tags:
-      - Chat
-    post:
-      consumes:
-      - application/json
-      description: Sends a message in the specified chat.
-      operationId: sendMessage
-      parameters:
-      - description: chatID
-        format: objectId
-        in: path
-        name: chatId
-        required: true
-        type: string
-      - description: Message object
-        in: body
-        name: message
-        required: true
-        schema:
-          $ref: '#/definitions/models.Message'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully sent message
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: Send a message in a chat
       tags:
       - Chat
   /chat/message/read:
@@ -836,6 +1003,162 @@ paths:
       summary: User Login
       tags:
       - User Authentication
+  /subscription:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of subscriptions for users in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get subscriptions for users
+      tags:
+      - Subscription
+  /subscription/{subscriptionId}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a subscription for users by its ID
+      parameters:
+      - description: Subscription ID
+        format: int64
+        in: path
+        minimum: 1
+        name: subscriptionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get a subscription for users by ID
+      tags:
+      - Subscription
+  /subscription/order/{subscriptionId}:
+    post:
+      consumes:
+      - application/json
+      description: Add an order for a subscription in the system
+      parameters:
+      - description: Subscription ID
+        format: int64
+        in: path
+        minimum: 1
+        name: subscriptionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: bad request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add an order for a subscription
+      tags:
+      - Subscription
+  /subscription/payment-success:
+    get:
+      consumes:
+      - application/json
+      description: Verify a payment for a subscription using the provided order ID,
+        payment ID, and signature
+      parameters:
+      - description: Order ID
+        in: query
+        name: order_id
+        required: true
+        type: integer
+      - description: Payment ID
+        in: query
+        name: payment_id
+        required: true
+        type: string
+      - description: Signature
+        in: query
+        name: signature
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully verified payment
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid input or conversion failure
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Verify a payment for a subscription
+      tags:
+      - Subscription
+  /subscription/payment/{orderId}:
+    get:
+      consumes:
+      - application/json
+      description: Make a payment for a subscription using the provided order ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment successful
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid input or conversion failure
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Make a payment for a subscription
+      tags:
+      - Subscription
   /unmatch/{id}:
     delete:
       consumes:

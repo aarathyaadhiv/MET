@@ -50,6 +50,34 @@ func (l *ActivityRepository) IsLikeExist(userId, likedId uint) (bool, error) {
 	return count > 0, nil
 }
 
+func (l *ActivityRepository) LikeCount(userId uint)(int,error){
+	var count int
+	if err:=l.DB.Raw(`SELECT like_count FROM users WHERE id=?`,userId).Scan(&count).Error;err!=nil{
+		return 0,err
+	}
+	return count,nil
+}
+
+func (l *ActivityRepository) UpdateLikeCount(userId uint,count int)error{
+	return l.DB.Exec(`UPDATE users SET like_count=? WHERE id=?`,count,userId).Error
+}
+
+func (l *ActivityRepository) IsSubscribed(userId uint)(bool,error){
+	var isSubscribed bool
+	if err:=l.DB.Raw(`SELECT is_subscribed FROM users WHERE id=?`,userId).Scan(&isSubscribed).Error;err!=nil{
+		return false,err
+	}
+	return isSubscribed,nil
+}
+
+func (l *ActivityRepository) SeeLike(userId uint)(bool,error){
+	var seeLike bool
+	if err:=l.DB.Raw(`SELECT s.see_like FROM users AS u JOIN subscriptions AS s ON u.subscription_id=s.id WHERE u.id=?`,userId).Scan(&seeLike).Error;err!=nil{
+		return false,err
+	}
+	return seeLike,nil
+}
+
 func (l *ActivityRepository) Match(userId, matchId uint) error {
 	if err := l.DB.Exec(`INSERT INTO matches(user_id,match_id) VALUES(?,?)`, userId, matchId).Error; err != nil {
 		return err

@@ -191,3 +191,51 @@ func (a *AdminHandler) GetSingleUser(c *gin.Context) {
 	succRes := response.MakeResponse(http.StatusOK, "successfully showing the user", res, nil)
 	c.JSON(http.StatusOK, succRes)
 }
+
+// @Summary Get reported users
+// @Description Get a list of reported users
+// @Tags Report Management
+// @ID get-reported-users
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response{} "successfully showing reported users"
+// @Failure 500 {object} response.Response{} "internal server error"
+// @Router /admin/reported-users [get]
+func (a *AdminHandler) ReportedUsers(c *gin.Context){
+	res,err:=a.UseCase.ReportedUsers()
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal serverr error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	succRes := response.MakeResponse(http.StatusOK, "successfully showing reported users", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}
+
+// @Summary Get reported user by ID
+// @Description Get details of a reported user by ID
+// @Tags Report Management
+// @ID get-reported-user
+// @Produce json
+// @Param reportId path int true "Report ID"
+// @Success 200 {object} response.Response{} "successfully showing the reported user"
+// @Failure 400 {object} response.Response{} "string conversion failed"
+// @Failure 500 {object} response.Response{} "internal server error"
+// @Router /admin/reported-users/{reportId} [get]
+func (a *AdminHandler) ReportedUser(c *gin.Context){
+	reportId, err := strconv.Atoi(c.Param("reportId"))
+
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "string conversion failed", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	res,err:=a.UseCase.ReportedUser(uint(reportId))
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal serverr error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	succRes := response.MakeResponse(http.StatusOK, "successfully showing the reported user", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}

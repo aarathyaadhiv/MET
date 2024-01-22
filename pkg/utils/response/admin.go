@@ -28,3 +28,18 @@ type UserDetailsToAdmin struct {
 	Images    string    `json:"image"`
 	Interests string    `json:"interests"`
 }
+
+type ReportedUsers struct {
+	Id          uint   `json:"id"`
+	Name        string `json:"name"`
+	ReportCount int    `json:"report_count"`
+}
+
+type ReportedUser struct {
+	Id             uint      `json:"id"`
+	Name           string    `json:"name"`
+	ReportedById   uint      `json:"reported_by_id"`
+	ReportedByName string    `json:"reported_by_name"`
+	Message        string    `json:"message"`
+	Time           time.Time `json:"time"`
+}

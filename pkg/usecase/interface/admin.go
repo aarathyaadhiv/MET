@@ -5,12 +5,13 @@ import (
 	"github.com/aarathyaadhiv/met/pkg/utils/response"
 )
 
-
-type AdminUseCase interface{
+type AdminUseCase interface {
 	AdminSignUp(admin models.Admin) (uint, error)
 	AdminLogin(admin models.Admin) (response.Token, error)
-	BlockUser(id uint)(uint,error)
-	UnBlockUser(id uint)(uint,error)
-	GetUsers(page,count int)([]response.User,error)
-	GetSingleUser(id uint)(response.UserDetailsToAdmin,error)
+	BlockUser(id uint) (uint, error)
+	UnBlockUser(id uint) (uint, error)
+	GetUsers(page, count int) ([]response.User, error)
+	GetSingleUser(id uint) (response.UserDetailsToAdmin, error)
+	ReportedUsers() (response.ReportedUsers, error)
+	ReportedUser(reportedUserId uint) (response.ReportedUser, error)
 }

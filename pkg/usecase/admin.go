@@ -114,3 +114,19 @@ func (a *AdminUseCase) GetSingleUser(id uint)(response.UserDetailsToAdmin,error)
 	}
 	return res,nil
 }
+
+func (a *AdminUseCase) ReportedUsers()(response.ReportedUsers,error){
+	res,err:=a.Repo.ReportedUsers()
+	if err!=nil{
+		return response.ReportedUsers{},errors.New("error in fetching data")
+	}
+	return res,nil
+}
+
+func (a *AdminUseCase) ReportedUser(reportedUserId uint)(response.ReportedUser,error){
+	res,err:=a.Repo.ReportedUser(reportedUserId)
+	if err!=nil{
+		return response.ReportedUser{},errors.New("error in fetching data")
+	}
+	return res,nil
+}

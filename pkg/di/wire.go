@@ -33,6 +33,9 @@ func InitializeAPI(c config.Config) (*server.ServerHTTP, error) {
 		repository.NewChatRepository,
 		usecase.NewChatUseCase,
 		handler.NewChatHandler,
+		repository.NewSubscriptionRepository,
+		usecase.NewSubscriptionUseCase,
+		handler.NewSubscriptionHandler,
 		middleware.NewAuthMiddleware,
 		server.NewServerHTTP,
 	)

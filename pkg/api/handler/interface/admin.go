@@ -9,4 +9,6 @@ type AdminHandler interface{
 	BlockOrUnBlock(c *gin.Context) 
 	GetUsers(c *gin.Context)
 	GetSingleUser(c *gin.Context)
+	ReportedUsers(c *gin.Context)
+	ReportedUser(c *gin.Context)
 }

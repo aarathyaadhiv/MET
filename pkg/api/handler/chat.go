@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	
 
 	handlerInterface "github.com/aarathyaadhiv/met/pkg/api/handler/interface"
 	useCaseInterface "github.com/aarathyaadhiv/met/pkg/usecase/interface"
@@ -10,7 +12,9 @@ import (
 	"github.com/aarathyaadhiv/met/pkg/utils/response"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/pion/webrtc/v3"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	
 )
 
 var upgrader = websocket.Upgrader{
@@ -92,48 +96,51 @@ func (t *ChatHandler) GetMessages(c *gin.Context) {
 	succRes := response.MakeResponse(http.StatusOK, "successfully showing messages in the given chatId", res, nil)
 	c.JSON(http.StatusOK, succRes)
 }
+//only for without websocket testing
+// // @Summary Send a message in a chat
+// // @Description Sends a message in the specified chat.
+// // @ID sendMessage
+// // @Tags Chat
+// // @Accept json
+// // @Produce json
+// // @Param chatId path string true "chatID" format(objectId)
+// // @Param message body models.Message true "Message object"
+// // @Success 200 {object} response.Response{} "Successfully sent message"
+// // @Failure 400 {object} response.Response{} "Bad Request"
+// // @Failure 401 {object} response.Response{} "Unauthorized"
+// // @Failure 500 {object} response.Response{} "Internal Server Error"
+// // @Router /chat/{chatId}/message [post]
+// func (t *ChatHandler) SendMessage(c *gin.Context) {
+// 	chatId, err := primitive.ObjectIDFromHex(c.Param("chatId"))
+// 	if err != nil {
+// 		errRes := response.MakeResponse(http.StatusBadRequest, "string conversion failed", nil, err.Error())
+// 		c.JSON(http.StatusBadRequest, errRes)
+// 		return
+// 	}
+// 	id, ok := c.Get("userId")
+// 	if !ok {
+// 		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, "error in retrieving user id")
+// 		c.JSON(http.StatusUnauthorized, errRes)
+// 		return
+// 	}
+// 	var message models.Message
+// 	if err := c.BindJSON(&message); err != nil {
+// 		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+// 		c.JSON(http.StatusBadRequest, errRes)
+// 		return
+// 	}
+// 	res, err := t.UseCase.SaveMessage(chatId, id.(uint), message.Message)
+// 	if err != nil {
+// 		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
+// 		c.JSON(http.StatusInternalServerError, errRes)
+// 		return
+// 	}
+// 	succRes := response.MakeResponse(http.StatusOK, "successfully sent message", res, nil)
+// 	c.JSON(http.StatusOK, succRes)
+// }
 
-// @Summary Send a message in a chat
-// @Description Sends a message in the specified chat.
-// @ID sendMessage
-// @Tags Chat
-// @Accept json
-// @Produce json
-// @Param chatId path string true "chatID" format(objectId)
-// @Param message body models.Message true "Message object"
-// @Success 200 {object} response.Response{} "Successfully sent message"
-// @Failure 400 {object} response.Response{} "Bad Request"
-// @Failure 401 {object} response.Response{} "Unauthorized"
-// @Failure 500 {object} response.Response{} "Internal Server Error"
-// @Router /chat/{chatId}/message [post]
-func (t *ChatHandler) SendMessage(c *gin.Context) {
-	chatId, err := primitive.ObjectIDFromHex(c.Param("chatId"))
-	if err != nil {
-		errRes := response.MakeResponse(http.StatusBadRequest, "string conversion failed", nil, err.Error())
-		c.JSON(http.StatusBadRequest, errRes)
-		return
-	}
-	id, ok := c.Get("userId")
-	if !ok {
-		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, "error in retrieving user id")
-		c.JSON(http.StatusUnauthorized, errRes)
-		return
-	}
-	var message models.Message
-	if err := c.BindJSON(&message); err != nil {
-		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
-		c.JSON(http.StatusBadRequest, errRes)
-		return
-	}
-	res, err := t.UseCase.SaveMessage(chatId, id.(uint), message.Message)
-	if err != nil {
-		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
-		c.JSON(http.StatusInternalServerError, errRes)
-		return
-	}
-	succRes := response.MakeResponse(http.StatusOK, "successfully sent message", res, nil)
-	c.JSON(http.StatusOK, succRes)
-}
+
+//only for without websocket testing ends here
 
 // @Summary Mark messages as read
 // @Description Marks specified messages as read by the user.
@@ -202,7 +209,7 @@ func (t *ChatHandler) Chat(c *gin.Context) {
 	}
 	connection[conn] = &client{ChatId: chatId, UserId: id.(uint)}
 	user[id.(uint)] = conn
-	
+
 	go func() {
 
 		for {
@@ -216,7 +223,7 @@ func (t *ChatHandler) Chat(c *gin.Context) {
 			if err != nil {
 				log.Fatal("error in saving message")
 			}
-			conn.WriteMessage(websocket.TextMessage,msg)
+			conn.WriteMessage(websocket.TextMessage, msg)
 			recipient, err := t.UseCase.FetchRecipient(chatID, userId)
 			if err != nil {
 				log.Fatal("error in fetching recipient id")
@@ -230,4 +237,31 @@ func (t *ChatHandler) Chat(c *gin.Context) {
 			}
 		}
 	}()
+}
+
+func (t *ChatHandler) VideoCall(c *gin.Context) {
+	peerConnectionConfig := webrtc.Configuration{
+		ICEServers: []webrtc.ICEServer{
+			{
+				URLs: []string{"stun:stun.l.google.com:19302"},
+			},
+		},
+	}
+	peerConnection, err := webrtc.NewPeerConnection(peerConnectionConfig)
+	if err != nil {
+
+	}
+	peerConnection.OnICEConnectionStateChange(func(is webrtc.ICEConnectionState) { fmt.Printf("connection state has changed %s /n", is.String()) })
+
+	offer := webrtc.SessionDescription{}
+	
+
+	peerConnection.SetRemoteDescription(offer)
+
+	answer, err := peerConnection.CreateAnswer(nil)
+	if err != nil {
+
+	}
+
+	peerConnection.SetLocalDescription(answer)
 }

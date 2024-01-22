@@ -20,7 +20,7 @@ func ConnectDB(c config.Config) (*gorm.DB, error) {
 	db.AutoMigrate(&domain.Images{})
 	db.AutoMigrate(&domain.Gender{})
 	db.AutoMigrate(&domain.Subscription{})
-	db.AutoMigrate(&domain.Subscription_order{})
+	db.AutoMigrate(&domain.SubscriptionOrder{})
 	db.AutoMigrate(&domain.Likes{})
 	db.AutoMigrate(&domain.Match{})
 	db.AutoMigrate(&domain.BlockedUsers{})

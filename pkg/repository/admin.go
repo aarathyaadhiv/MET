@@ -110,3 +110,19 @@ WHERE
 	}
 	return user, nil
 }
+
+func (a *AdminRepository) ReportedUsers()(response.ReportedUsers,error){
+	var reported response.ReportedUsers
+	if err:=a.DB.Raw(`SELECT r.reported_id as is,u.name,COUNT(r.reported_id) as report_count FROM reported_users AS r JOIN users AS u ON u.id=r.reported_id GROUP BY r.reported_id,u.name`).Scan(&reported).Error;err!=nil{
+		return response.ReportedUsers{},err
+	}
+	return reported,nil
+}
+
+func (a *AdminRepository) ReportedUser(reportId uint)(response.ReportedUser,error){
+	var report response.ReportedUser
+	if err:=a.DB.Raw(`SELECT r.reported_id as id,u1.name,r.user_id as reported_by_id,u2.name as reported_by_name,r.message,r.time FROM reported_users as r JOIN users AS u1 ON r.reported_id=u1.id JOIN users u2 ON r.user_id=u2.id WHERE r.reported_id=?`,reportId).Scan(&report).Error;err!=nil{
+		return response.ReportedUser{},err
+	}
+	return report,nil
+}
