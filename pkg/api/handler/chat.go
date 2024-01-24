@@ -2,9 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	
 
 	handlerInterface "github.com/aarathyaadhiv/met/pkg/api/handler/interface"
 	useCaseInterface "github.com/aarathyaadhiv/met/pkg/usecase/interface"
@@ -14,7 +12,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/pion/webrtc/v3"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	
 )
 
 var upgrader = websocket.Upgrader{
@@ -30,8 +27,18 @@ type client struct {
 	UserId uint
 }
 
-var connection = make(map[*websocket.Conn]*client)
-var user = make(map[uint]*websocket.Conn)
+type VideoCall struct {
+	CallId      string
+	CallerId    uint
+	RecipientId uint
+	Status      string
+}
+
+var (
+	connection = make(map[*websocket.Conn]*client)
+	user       = make(map[uint]*websocket.Conn)
+	videoCall=make(map[string]*VideoCall)
+)
 
 type ChatHandler struct {
 	UseCase useCaseInterface.ChatUseCase
@@ -96,6 +103,7 @@ func (t *ChatHandler) GetMessages(c *gin.Context) {
 	succRes := response.MakeResponse(http.StatusOK, "successfully showing messages in the given chatId", res, nil)
 	c.JSON(http.StatusOK, succRes)
 }
+
 //only for without websocket testing
 // // @Summary Send a message in a chat
 // // @Description Sends a message in the specified chat.
@@ -138,7 +146,6 @@ func (t *ChatHandler) GetMessages(c *gin.Context) {
 // 	succRes := response.MakeResponse(http.StatusOK, "successfully sent message", res, nil)
 // 	c.JSON(http.StatusOK, succRes)
 // }
-
 
 //only for without websocket testing ends here
 
@@ -221,12 +228,14 @@ func (t *ChatHandler) Chat(c *gin.Context) {
 			chatID := connection[conn].ChatId
 			_, err = t.UseCase.SaveMessage(chatID, userId, string(msg))
 			if err != nil {
-				log.Fatal("error in saving message")
+				fmt.Println("error in saving message")
+				break
 			}
 			conn.WriteMessage(websocket.TextMessage, msg)
 			recipient, err := t.UseCase.FetchRecipient(chatID, userId)
 			if err != nil {
-				log.Fatal("error in fetching recipient id")
+				fmt.Println("error in fetching recipient id")
+				break
 			}
 			if value, ok := user[recipient]; ok {
 				err = value.WriteMessage(websocket.TextMessage, msg)
@@ -239,6 +248,7 @@ func (t *ChatHandler) Chat(c *gin.Context) {
 	}()
 }
 
+
 func (t *ChatHandler) VideoCall(c *gin.Context) {
 	peerConnectionConfig := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
@@ -249,19 +259,24 @@ func (t *ChatHandler) VideoCall(c *gin.Context) {
 	}
 	peerConnection, err := webrtc.NewPeerConnection(peerConnectionConfig)
 	if err != nil {
-
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
 	}
 	peerConnection.OnICEConnectionStateChange(func(is webrtc.ICEConnectionState) { fmt.Printf("connection state has changed %s /n", is.String()) })
 
 	offer := webrtc.SessionDescription{}
-	
 
 	peerConnection.SetRemoteDescription(offer)
 
 	answer, err := peerConnection.CreateAnswer(nil)
 	if err != nil {
-
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
 	}
+	gatherComplete:=webrtc.GatheringCompletePromise(peerConnection)
 
 	peerConnection.SetLocalDescription(answer)
+	<-gatherComplete
 }

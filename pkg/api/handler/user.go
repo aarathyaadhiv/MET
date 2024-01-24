@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -115,14 +116,14 @@ func (u *UserHandler) AddProfile(c *gin.Context) {
 	profile.Name = c.Request.FormValue("name")
 	parsedDob, err := time.Parse("2006-01-02", c.Request.FormValue("dob"))
 	if err != nil {
-		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+		errRes := response.MakeResponse(http.StatusBadRequest, "dob is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
 	profile.Dob = parsedDob
 	genderId, err := strconv.Atoi(c.Request.FormValue("genderId"))
 	if err != nil {
-		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+		errRes := response.MakeResponse(http.StatusBadRequest, "gender is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
@@ -131,13 +132,13 @@ func (u *UserHandler) AddProfile(c *gin.Context) {
 	profile.Country = c.Request.FormValue("country")
 	profile.Longitude, err = strconv.ParseFloat(c.Request.FormValue("longitude"), 64)
 	if err != nil {
-		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+		errRes := response.MakeResponse(http.StatusBadRequest, "longitude is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
 	profile.Lattitude, err = strconv.ParseFloat(c.Request.FormValue("lattitude"), 64)
 	if err != nil {
-		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+		errRes := response.MakeResponse(http.StatusBadRequest, "lattitude is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
@@ -148,7 +149,7 @@ func (u *UserHandler) AddProfile(c *gin.Context) {
 	for _, v := range value {
 		val, err := strconv.Atoi(v)
 		if err != nil {
-			errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+			errRes := response.MakeResponse(http.StatusBadRequest, "interest is not in required format", nil, err.Error())
 			c.JSON(http.StatusBadRequest, errRes)
 			return
 		}
@@ -157,6 +158,7 @@ func (u *UserHandler) AddProfile(c *gin.Context) {
 
 	profile.Interests = interests
 	image, err := c.MultipartForm()
+	fmt.Println("image", image)
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
