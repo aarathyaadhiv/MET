@@ -26,6 +26,11 @@ type Client struct {
 	Send   chan *Message
 }
 
+type WebsocketMessage struct{
+	Event string
+	Data string
+}
+
 type Message struct {
 	SenderId   uint
 	ReceiverId uint

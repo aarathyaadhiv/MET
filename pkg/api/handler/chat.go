@@ -102,6 +102,13 @@ func (t *ChatHandler) GetMessages(c *gin.Context) {
 	}
 	succRes := response.MakeResponse(http.StatusOK, "successfully showing messages in the given chatId", res, nil)
 	c.JSON(http.StatusOK, succRes)
+	
+}
+
+func (t *ChatHandler) ChatPage(c *gin.Context){
+	chatId:= c.Param("chatId")
+	
+	c.HTML(http.StatusOK,"index.html",chatId)
 }
 
 //only for without websocket testing

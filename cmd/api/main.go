@@ -25,10 +25,10 @@ func main() {
 	if configErr != nil {
 		log.Fatal("Error in loading config file")
 	}
-	server,diErr:=di.InitializeAPI(config)
-	if diErr!=nil{
+	server, diErr := di.InitializeAPI(config)
+	if diErr != nil {
 		log.Fatal("Error in initializing API")
-	}else{
+	} else {
 		server.Start()
 	}
 

@@ -8,4 +8,5 @@ type ChatHandler interface {
 	// SendMessage(c *gin.Context)
 	MakeMessageRead(c *gin.Context)
 	Chat(c *gin.Context)
+	ChatPage(c *gin.Context)
 }

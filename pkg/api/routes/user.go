@@ -39,6 +39,7 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 			chat.GET("/:chatId/message",chatHandler.GetMessages)
 			// chat.POST("/:chatId/message",chatHandler.SendMessage)
 			chat.PATCH("/message/read",chatHandler.MakeMessageRead)
+			chat.GET("/:chatId",chatHandler.ChatPage)
 		}
 		route.GET("/ws/:chatId",chatHandler.Chat)
 		subscription:=route.Group("subscription")

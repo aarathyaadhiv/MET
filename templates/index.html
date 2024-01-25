@@ -64,7 +64,10 @@
     </style>
 </head>
 <body>
-
+<div>
+    <input type="text" id="chatId" placeholder="Type your chat id" value={{.}} hidden>
+        
+</div>
     <div id="chat-container">
         <div id="messages"></div>
         <input type="text" id="inputMessage" placeholder="Type your message">
@@ -72,7 +75,9 @@
     </div>
 
     <script>
-        const ws = new WebSocket("ws://" + window.location.host + "/ws"+ "/65a12a03d5e6e6a8f44fc92e" );
+        const chatId=document.getElementById("chatId").value;
+        console.log(String(chatId));
+        const ws = new WebSocket("ws://" + window.location.host + "/ws"+ "/"+ String(chatId) );
         
         ws.onmessage = function(event) {
             const messagesDiv = document.getElementById("messages");
