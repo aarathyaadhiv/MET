@@ -18,7 +18,7 @@ func NewServerHTTP(userHandler handlerInterface.UserHandler, adminHandler handle
 	server := gin.New()
 	server.LoadHTMLGlob("templates/*")
 	configs := cors.DefaultConfig()
-	configs.AllowOrigins = []string{"http://aarathynairk.shop","https://aarathynairk.shop","http://www.aarathynairk.shop","https://www.aarathynairk.shop","http://localhost:3001","http://aarathynairk.shop","http://http://3.7.69.180:3001"}
+	configs.AllowOrigins = []string{"http://aarathynairk.shop","https://aarathynairk.shop","http://www.aarathynairk.shop","https://www.aarathynairk.shop","http://localhost:3001","http://aarathynairk.shop","http://3.7.69.180:3001"}
 	configs.AllowMethods = []string{"GET", "POST", "PUT", "DELETE","PATCH"}
 	server.Use(cors.New(configs))
 
