@@ -656,7 +656,7 @@ const docTemplate = `{
             }
         },
         "/chat/message/read": {
-            "post": {
+            "patch": {
                 "description": "Marks specified messages as read by the user.",
                 "consumes": [
                     "application/json"

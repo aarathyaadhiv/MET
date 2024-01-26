@@ -167,7 +167,7 @@ func (t *ChatHandler) ChatPage(c *gin.Context){
 // @Failure 400 {object} response.Response{} "Bad Request"
 // @Failure 401 {object} response.Response{} "Unauthorized"
 // @Failure 500 {object} response.Response{} "Internal Server Error"
-// @Router /chat/message/read [post]
+// @Router /chat/message/read [patch]
 func (t *ChatHandler) MakeMessageRead(c *gin.Context) {
 	id, ok := c.Get("userId")
 	if !ok {

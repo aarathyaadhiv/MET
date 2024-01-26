@@ -536,7 +536,7 @@ paths:
       tags:
       - Chat
   /chat/message/read:
-    post:
+    patch:
       consumes:
       - application/json
       description: Marks specified messages as read by the user.
