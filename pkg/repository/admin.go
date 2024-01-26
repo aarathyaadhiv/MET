@@ -113,7 +113,7 @@ WHERE
 
 func (a *AdminRepository) ReportedUsers()(response.ReportedUsers,error){
 	var reported response.ReportedUsers
-	if err:=a.DB.Raw(`SELECT r.reported_id as is,u.name,COUNT(r.reported_id) as report_count FROM reported_users AS r JOIN users AS u ON u.id=r.reported_id GROUP BY r.reported_id,u.name`).Scan(&reported).Error;err!=nil{
+	if err:=a.DB.Raw(`SELECT r.reported_id as id,u.name,COUNT(r.reported_id) as report_count FROM reported_users AS r JOIN users AS u ON u.id=r.reported_id GROUP BY r.reported_id,u.name`).Scan(&reported).Error;err!=nil{
 		return response.ReportedUsers{},err
 	}
 	return reported,nil

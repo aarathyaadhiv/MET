@@ -46,7 +46,7 @@ func (u *UserUseCase) SendOtp(phNo string) error {
 	helper.TwillioSetup(u.Config.TwilioAccountSID, u.Config.TwilioAuthToken)
 	_, err = helper.SendOtp(phone, u.Config.TwilioServicesId)
 	if err != nil {
-		fmt.Println("error here",err)
+		fmt.Println("error here", err)
 		return errors.New("error in sending otp")
 	}
 	return nil
@@ -113,72 +113,86 @@ func (u *UserUseCase) AddProfile(profile models.Profile, id uint) (uint, error) 
 		for _, file := range form {
 			url, err := helper.AddImageToS3(file)
 			if err != nil {
-				fmt.Println("err", err)
+
 				return 0, errors.New("error in adding image")
 			}
-			err = u.Repo.AddImage(userId, url)
+			exist, err := u.Repo.IsImageExist(userId, url)
 			if err != nil {
 				return 0, errors.New("error in saving image")
 			}
+			if !exist {
+				err = u.Repo.AddImage(userId, url)
+				if err != nil {
+					return 0, errors.New("error in saving image")
+				}
+			}
+
 		}
 	}
 
 	for _, interest := range profile.Interests {
-		err = u.Repo.AddInterest(userId, interest)
+		iExist, err := u.Repo.IsInterestExist(userId, interest)
 		if err != nil {
 			return 0, errors.New("error in saving interest")
 		}
+		if !iExist {
+			err = u.Repo.AddInterest(userId, interest)
+			if err != nil {
+				return 0, errors.New("error in saving interest")
+			}
+		}
+
 	}
 	//add preference
-	minAge,maxAge:=helper.MinAndMaxAge(age)
-	gender:=helper.Gender(profile.GenderId)
-	preference:=models.Preference{
-		MinAge: minAge,
-		MaxAge: maxAge,
-		Gender: gender,
+	minAge, maxAge := helper.MinAndMaxAge(age)
+	gender := helper.Gender(profile.GenderId)
+	preference := models.Preference{
+		MinAge:      minAge,
+		MaxAge:      maxAge,
+		Gender:      gender,
 		MaxDistance: 15,
 	}
-	err=u.Repo.AddPreference(userId,preference)
-	if err!=nil{
-		return 0,errors.New("error in add preference")
+	err = u.Repo.AddPreference(userId, preference)
+	if err != nil {
+		return 0, errors.New("error in add preference")
 	}
 	return userId, nil
 }
 
-func (u *UserUseCase) ShowProfile(id uint)(response.Profile,error){
-	userDetails,err:=u.Repo.ShowProfile(id)
-	if err!=nil{
-		return response.Profile{},errors.New("error in fetching user details")
+func (u *UserUseCase) ShowProfile(id uint) (response.Profile, error) {
+	userDetails, err := u.Repo.ShowProfile(id)
+	if err != nil {
+		return response.Profile{}, errors.New("error in fetching user details")
 	}
-	images,err:=u.Repo.FetchImages(id)
-	if err!=nil{
-		return response.Profile{},errors.New("error in fetching user images")
+	images, err := u.Repo.FetchImages(id)
+	if err != nil {
+		return response.Profile{}, errors.New("error in fetching user images")
 	}
-	interests,err:=u.Repo.FetchInterests(id)
-	if err!=nil{
-		return response.Profile{},errors.New("error in fetching user interests")
+	interests, err := u.Repo.FetchInterests(id)
+	if err != nil {
+		return response.Profile{}, errors.New("error in fetching user interests")
 	}
 	return response.Profile{
 		UserDetails: userDetails,
-		Image: images,
-		Interests: interests,
-	},nil
+		Image:       images,
+		Interests:   interests,
+	}, nil
 }
 
-func (u *UserUseCase) UpdateUser(user models.UpdateUser,id uint)(response.Id,error){
-	users:=models.UpdateUserDetails{
-		PhNo: user.PhNo,
-		City: user.City,
+func (u *UserUseCase) UpdateUser(user models.UpdateUser, id uint) (response.Id, error) {
+	users := models.UpdateUserDetails{
+		PhNo:    user.PhNo,
+		City:    user.City,
 		Country: user.Country,
-		Bio: user.Bio,
+		Bio:     user.Bio,
 	}
-	err:=u.Repo.UpdateUserDetails(id,users)
-	if err!=nil{
-		return response.Id{},errors.New("error in fetching data")
+	err := u.Repo.UpdateUserDetails(id, users)
+	if err != nil {
+		return response.Id{}, errors.New("error in fetching data")
 	}
-	err=u.Repo.DeleteImage(id)
-	if err!=nil{
-		return response.Id{},errors.New("error in fetching data")
+	err = u.Repo.DeleteImage(id)
+	if err != nil {
+		return response.Id{}, errors.New("error in fetching data")
 	}
 	for _, form := range user.Image.File {
 		for _, file := range form {
@@ -193,9 +207,9 @@ func (u *UserUseCase) UpdateUser(user models.UpdateUser,id uint)(response.Id,err
 			}
 		}
 	}
-	err=u.Repo.DeleteInterest(id)
-	if err!=nil{
-		return response.Id{},errors.New("error in fetching data")
+	err = u.Repo.DeleteInterest(id)
+	if err != nil {
+		return response.Id{}, errors.New("error in fetching data")
 	}
 	for _, interest := range user.Interests {
 		err = u.Repo.AddInterest(id, interest)
@@ -205,23 +219,23 @@ func (u *UserUseCase) UpdateUser(user models.UpdateUser,id uint)(response.Id,err
 	}
 	return response.Id{
 		Id: id,
-	},nil
+	}, nil
 }
 
-func (u *UserUseCase)UpdatePreference(id uint,preference models.Preference)(response.Id,error){
-	userId,err:=u.Repo.UpdatePreference(id,preference)
-	if err!=nil{
-		return response.Id{},err
+func (u *UserUseCase) UpdatePreference(id uint, preference models.Preference) (response.Id, error) {
+	userId, err := u.Repo.UpdatePreference(id, preference)
+	if err != nil {
+		return response.Id{}, err
 	}
 	return response.Id{
 		Id: userId,
-		},nil
+	}, nil
 }
 
-func (u *UserUseCase) GetPreference(id uint)(models.Preference,error){
-	res,err:=u.Repo.GetPreference(id)
-	if err!=nil{
-		return models.Preference{},err
+func (u *UserUseCase) GetPreference(id uint) (models.Preference, error) {
+	res, err := u.Repo.GetPreference(id)
+	if err != nil {
+		return models.Preference{}, err
 	}
-	return res,nil
+	return res, nil
 }

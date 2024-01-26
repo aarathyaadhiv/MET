@@ -70,6 +70,14 @@ func (u *UserRepository) UpdateLocation(id uint, location models.UpdateLocation)
 	return userId, nil
 }
 
+func (u *UserRepository) IsInterestExist(id,interest uint)(bool,error){
+	var count int
+	if err:=u.DB.Raw(`SELECT COUNT(*) FROM user_interests WHERE user_id=? AND interest_id=?`,id,interest).Scan(&count).Error;err!=nil{
+		return false,err
+	}
+	return count>0,nil
+}
+
 func (u *UserRepository) AddInterest(id, interest uint) error {
 	if err := u.DB.Exec(`INSERT INTO user_interests(user_id,interest_id) values(?,?)`, id, interest).Error; err != nil {
 		return err
@@ -82,6 +90,14 @@ func (u *UserRepository) DeleteInterest(id uint) error {
 		return err
 	}
 	return nil
+}
+
+func (u *UserRepository) IsImageExist(id uint,image string)(bool,error){
+	var count int
+	if err:=u.DB.Raw(`SELECT COUNT(*) FROM images WHERE user_id=? AND image=?`,id,image).Scan(&count).Error;err!=nil{
+		return false,err
+	}
+	return count>0,nil
 }
 
 func (u *UserRepository) AddImage(id uint, image string) error {

@@ -2,7 +2,7 @@ package handler
 
 import (
 	"errors"
-	"fmt"
+
 	"net/http"
 	"strconv"
 	"strings"
@@ -114,57 +114,56 @@ func (u *UserHandler) AddProfile(c *gin.Context) {
 	}
 	var profile models.Profile
 	profile.Name = c.Request.FormValue("name")
-	fmt.Println("name", profile.Name)
+
 	parsedDob, err := time.Parse("2006-01-02", c.Request.FormValue("dob"))
 	if err != nil {
-		fmt.Println("errdob", err)
+
 		errRes := response.MakeResponse(http.StatusBadRequest, "dob is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
 
 	profile.Dob = parsedDob
-	fmt.Println("dob", profile.Dob)
+
 	genderId, err := strconv.Atoi(c.Request.FormValue("genderId"))
 	if err != nil {
-		fmt.Println("errge", err)
+
 		errRes := response.MakeResponse(http.StatusBadRequest, "gender is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
 	profile.GenderId = uint(genderId)
-	fmt.Println("ge", profile.GenderId)
+
 	profile.City = c.Request.FormValue("city")
 
-	fmt.Println("city", profile.City)
 	profile.Country = c.Request.FormValue("country")
-	fmt.Println("cou", profile.Country)
+
 	profile.Longitude, err = strconv.ParseFloat(c.Request.FormValue("longitude"), 64)
 	if err != nil {
-		fmt.Println("errlon", err)
+
 		errRes := response.MakeResponse(http.StatusBadRequest, "longitude is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	fmt.Println("long", profile.Longitude)
+
 	profile.Lattitude, err = strconv.ParseFloat(c.Request.FormValue("lattitude"), 64)
 	if err != nil {
-		fmt.Println("errlan", err)
+
 		errRes := response.MakeResponse(http.StatusBadRequest, "lattitude is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 
 	}
-	fmt.Println("lat", profile.Lattitude)
+
 	profile.Bio = c.Request.FormValue("bio")
-	fmt.Println("bi", profile.Bio)
+
 	interest := c.Request.FormValue("interests")
 	var interests []uint
 	value := strings.Split(interest, ",")
 	for _, v := range value {
 		val, err := strconv.Atoi(v)
 		if err != nil {
-			fmt.Println("errint", err)
+
 			errRes := response.MakeResponse(http.StatusBadRequest, "interest is not in required format", nil, err.Error())
 			c.JSON(http.StatusBadRequest, errRes)
 			return
@@ -173,17 +172,17 @@ func (u *UserHandler) AddProfile(c *gin.Context) {
 	}
 
 	profile.Interests = interests
-	fmt.Println("int", profile.Interests)
+
 	image, err := c.MultipartForm()
-	fmt.Println("image", image)
+
 	if err != nil {
-		fmt.Println("errimag", err)
+
 		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
 	profile.Image = image
-	fmt.Println("im", profile.Image.File)
+
 	res, err := u.UseCase.AddProfile(profile, id.(uint))
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
