@@ -131,15 +131,10 @@ func (u *UserUseCase) AddProfile(profile models.Profile, id uint) (uint, error) 
 	}
 
 	for _, interest := range profile.Interests {
-		iExist, err := u.Repo.IsInterestExist(userId, interest)
+
+		err = u.Repo.AddInterest(userId, interest)
 		if err != nil {
 			return 0, errors.New("error in saving interest")
-		}
-		if !iExist {
-			err = u.Repo.AddInterest(userId, interest)
-			if err != nil {
-				return 0, errors.New("error in saving interest")
-			}
 		}
 
 	}

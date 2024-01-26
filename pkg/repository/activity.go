@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	interfaces "github.com/aarathyaadhiv/met/pkg/repository/interface"
 	"github.com/aarathyaadhiv/met/pkg/utils/response"
 	"gorm.io/gorm"
@@ -16,7 +18,7 @@ func NewActivityRepository(db *gorm.DB) interfaces.ActivityRepository {
 
 func (l *ActivityRepository) Like(likedId, userId uint) (response.Like, error) {
 	var like response.Like
-	if err := l.DB.Raw(`INSERT INTO likes(user_id,liked_id) VALUES(?,?) RETURNING user_id,liked_id`, userId, likedId).Scan(&like).Error; err != nil {
+	if err := l.DB.Raw(`INSERT INTO likes(user_id,liked_id,time) VALUES(?,?,?) RETURNING user_id,liked_id`, userId, likedId, time.Now()).Scan(&like).Error; err != nil {
 		return response.Like{}, err
 	}
 	return like, nil
@@ -50,36 +52,36 @@ func (l *ActivityRepository) IsLikeExist(userId, likedId uint) (bool, error) {
 	return count > 0, nil
 }
 
-func (l *ActivityRepository) LikeCount(userId uint)(int,error){
+func (l *ActivityRepository) LikeCount(userId uint) (int, error) {
 	var count int
-	if err:=l.DB.Raw(`SELECT like_count FROM users WHERE id=?`,userId).Scan(&count).Error;err!=nil{
-		return 0,err
+	if err := l.DB.Raw(`SELECT like_count FROM users WHERE id=?`, userId).Scan(&count).Error; err != nil {
+		return 0, err
 	}
-	return count,nil
+	return count, nil
 }
 
-func (l *ActivityRepository) UpdateLikeCount(userId uint,count int)error{
-	return l.DB.Exec(`UPDATE users SET like_count=? WHERE id=?`,count,userId).Error
+func (l *ActivityRepository) UpdateLikeCount(userId uint, count int) error {
+	return l.DB.Exec(`UPDATE users SET like_count=? WHERE id=?`, count, userId).Error
 }
 
-func (l *ActivityRepository) IsSubscribed(userId uint)(bool,error){
+func (l *ActivityRepository) IsSubscribed(userId uint) (bool, error) {
 	var isSubscribed bool
-	if err:=l.DB.Raw(`SELECT is_subscribed FROM users WHERE id=?`,userId).Scan(&isSubscribed).Error;err!=nil{
-		return false,err
+	if err := l.DB.Raw(`SELECT is_subscribed FROM users WHERE id=?`, userId).Scan(&isSubscribed).Error; err != nil {
+		return false, err
 	}
-	return isSubscribed,nil
+	return isSubscribed, nil
 }
 
-func (l *ActivityRepository) SeeLike(userId uint)(bool,error){
+func (l *ActivityRepository) SeeLike(userId uint) (bool, error) {
 	var seeLike bool
-	if err:=l.DB.Raw(`SELECT s.see_like FROM users AS u JOIN subscriptions AS s ON u.subscription_id=s.id WHERE u.id=?`,userId).Scan(&seeLike).Error;err!=nil{
-		return false,err
+	if err := l.DB.Raw(`SELECT s.see_like FROM users AS u JOIN subscriptions AS s ON u.subscription_id=s.id WHERE u.id=?`, userId).Scan(&seeLike).Error; err != nil {
+		return false, err
 	}
-	return seeLike,nil
+	return seeLike, nil
 }
 
 func (l *ActivityRepository) Match(userId, matchId uint) error {
-	if err := l.DB.Exec(`INSERT INTO matches(user_id,match_id) VALUES(?,?)`, userId, matchId).Error; err != nil {
+	if err := l.DB.Exec(`INSERT INTO matches(user_id,match_id,time) VALUES(?,?,?)`, userId, matchId, time.Now()).Error; err != nil {
 		return err
 	}
 	return nil
@@ -127,7 +129,7 @@ func (l *ActivityRepository) IsReported(userId, reportId uint) (bool, error) {
 
 func (l *ActivityRepository) Report(userId, reportId uint, message string) (response.Report, error) {
 	var report response.Report
-	if err := l.DB.Raw(`INSERT INTO reported_users(user_id,reported_id,message) VALUES(?,?,?) RETURNING user_id,reported_id`, userId, reportId, message).Scan(&report).Error; err != nil {
+	if err := l.DB.Raw(`INSERT INTO reported_users(user_id,reported_id,message,time) VALUES(?,?,?,?) RETURNING user_id,reported_id`, userId, reportId, message, time.Now()).Scan(&report).Error; err != nil {
 		return response.Report{}, err
 	}
 	return report, nil
