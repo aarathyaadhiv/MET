@@ -162,7 +162,7 @@ func (t *ChatHandler) ChatPage(c *gin.Context){
 // @Tags Chat
 // @Accept json
 // @Produce json
-// @Param messageIds body models.MakeReadReq true "Message IDs to mark as read"
+// @Param messageIds body models.MakeReadReq true "Array of message IDs to mark as read"
 // @Success 200 {object} response.Response{} "Successfully marked messages as read"
 // @Failure 400 {object} response.Response{} "Bad Request"
 // @Failure 401 {object} response.Response{} "Unauthorized"

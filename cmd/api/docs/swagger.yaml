@@ -14,7 +14,6 @@ definitions:
       message_ids:
         items:
           type: string
-          format: objectId
         type: array
     type: object
   models.OtpRequest:
@@ -543,7 +542,7 @@ paths:
       description: Marks specified messages as read by the user.
       operationId: makeMessageRead
       parameters:
-      - description: Message IDs to mark as read
+      - description: Array of message IDs to mark as read
         in: body
         name: messageIds
         required: true

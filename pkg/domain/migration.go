@@ -11,3 +11,15 @@ func (Images) Migration() string {
         CREATE UNIQUE INDEX idx_images ON images (user_id, image);
     `
 }
+
+func (Preference) Migration() string {
+	return `
+    CREATE UNIQUE INDEX idx_preference ON preferences (user_id);
+    `
+}
+
+func (Subscription) Migration() string {
+	return `
+    CREATE UNIQUE INDEX idx_subscription ON subscriptions (name);
+    `
+}

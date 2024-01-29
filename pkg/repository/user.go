@@ -116,7 +116,7 @@ func (u *UserRepository) DeleteImage(id uint) error {
 
 func (u *UserRepository) ShowProfile(id uint) (response.UserDetails, error) {
 	var user response.UserDetails
-	if err := u.DB.Raw(`SELECT u.id,u.name,u.dob,u.age,u.ph_no,g.name as gender,u.city,u.country,u.longitude,u.lattitude,u.bio from users as u JOIN genders as g ON u.gender_id=g.id WHERE u.id=?`, id).Scan(&user).Error; err != nil {
+	if err := u.DB.Raw(`SELECT u.id,u.name,TO_CHAR(DATE(u.dob), 'YYYY-FMMonth-DD') AS dob,u.age,u.ph_no,g.name as gender,u.city,u.country,u.longitude,u.lattitude,u.bio from users as u JOIN genders as g ON u.gender_id=g.id WHERE u.id=?`, id).Scan(&user).Error; err != nil {
 		return response.UserDetails{}, err
 	}
 	return user, nil

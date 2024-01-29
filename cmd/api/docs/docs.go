@@ -671,7 +671,7 @@ const docTemplate = `{
                 "operationId": "makeMessageRead",
                 "parameters": [
                     {
-                        "description": "Message IDs to mark as read",
+                        "description": "Array of message IDs to mark as read",
                         "name": "messageIds",
                         "in": "body",
                         "required": true,

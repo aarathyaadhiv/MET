@@ -29,12 +29,20 @@ func ConnectDB(c config.Config) (*gorm.DB, error) {
 	// }
 	db.AutoMigrate(&domain.Gender{})
 	db.AutoMigrate(&domain.Subscription{})
+	// err := db.Exec(domain.Subscription{}.Migration()).Error
+	// if err != nil {
+	// 	return db, err
+	// }
 	db.AutoMigrate(&domain.SubscriptionOrder{})
 	db.AutoMigrate(&domain.Likes{})
 	db.AutoMigrate(&domain.Match{})
 	db.AutoMigrate(&domain.BlockedUsers{})
 	db.AutoMigrate(&domain.ReportedUsers{})
 	db.AutoMigrate(&domain.Preference{})
+	// err = db.Exec(domain.Preference{}.Migration()).Error
+	// if err != nil {
+	// 	return db, err
+	// }
 
 	return db, dbErr
 }
