@@ -16,6 +16,4 @@ type Message struct {
 	Message string `json:"message"`
 }
 
-type MakeReadReq struct {
-	MessageIds []primitive.ObjectID `json:"message_ids"`
-}
+

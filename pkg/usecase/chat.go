@@ -62,23 +62,26 @@ func (c *ChatUseCase) SaveMessage(chatId primitive.ObjectID, senderId uint, mess
 	return res, nil
 }
 
-func (c *ChatUseCase) ReadMessage(userId uint, messages []primitive.ObjectID) ([]primitive.ObjectID, error) {
+func (c *ChatUseCase) ReadMessage(userId uint, chatId primitive.ObjectID) (int64, error) {
 
-	res := make([]primitive.ObjectID, 0)
-	for _, message := range messages {
-		id, err := c.Repo.ReadMessage(message, userId)
-		if err != nil {
-			return nil, err
-		}
-		res = append(res, id)
+	senderId, err := c.Repo.FetchRecipient(chatId, userId)
+
+	if err != nil {
+		return 0, err
 	}
+
+	res, err := c.Repo.ReadMessage(chatId, senderId)
+	if err != nil {
+		return 0, err
+	}
+
 	return res, nil
 }
 
-func (c *ChatUseCase) FetchRecipient(chatId primitive.ObjectID,userId uint)(uint,error){
-	res,err:=c.Repo.FetchRecipient(chatId,userId)
-	if err!=nil{
-		return 0,err
+func (c *ChatUseCase) FetchRecipient(chatId primitive.ObjectID, userId uint) (uint, error) {
+	res, err := c.Repo.FetchRecipient(chatId, userId)
+	if err != nil {
+		return 0, err
 	}
-	return res,nil
+	return res, nil
 }

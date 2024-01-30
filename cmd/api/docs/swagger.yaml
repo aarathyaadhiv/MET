@@ -9,13 +9,6 @@ definitions:
     - email
     - password
     type: object
-  models.MakeReadReq:
-    properties:
-      message_ids:
-        items:
-          type: string
-        type: array
-    type: object
   models.OtpRequest:
     properties:
       ph_no:
@@ -535,19 +528,18 @@ paths:
       summary: Get messages in a chat
       tags:
       - Chat
-  /chat/message/read:
     patch:
       consumes:
       - application/json
       description: Marks specified messages as read by the user.
       operationId: makeMessageRead
       parameters:
-      - description: Array of message IDs to mark as read
-        in: body
-        name: messageIds
+      - description: chatID
+        format: objectId
+        in: path
+        name: chatId
         required: true
-        schema:
-          $ref: '#/definitions/models.MakeReadReq'
+        type: string
       produces:
       - application/json
       responses:

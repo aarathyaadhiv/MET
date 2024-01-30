@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"time"
 
 	"github.com/aarathyaadhiv/met/pkg/domain"
@@ -40,14 +41,13 @@ func (c *ChatRepository) IsChatExist(user1, user2 uint) (bool, error) {
 	err := c.ChatCollection.FindOne(context.TODO(), filter).Decode(&chat)
 
 	if err == mongo.ErrNoDocuments {
-		
+
 		return false, nil
 	} else if err != nil {
-		
+
 		return false, err
 	}
 
-	
 	return true, nil
 }
 
@@ -96,31 +96,30 @@ func (c *ChatRepository) SaveMessage(message domain.Messages) (primitive.ObjectI
 	return id.InsertedID.(primitive.ObjectID), nil
 }
 
-func (c *ChatRepository) ReadMessage(id primitive.ObjectID, userId uint) (primitive.ObjectID, error) {
-	
-	filter := bson.M{"_id": id, "sender_id": bson.M{"$ne": userId}}
+func (c *ChatRepository) ReadMessage(chatId primitive.ObjectID, senderId uint) (int64, error) {
 
-	
+	filter := bson.M{"chat_id": chatId, "sender_id": senderId, "seen": false}
+
 	update := bson.M{"$set": bson.M{"seen": true}}
 
-	
-	res, err := c.MessageCollection.UpdateOne(context.TODO(), filter, update)
+	res, err := c.MessageCollection.UpdateMany(context.TODO(), filter, update)
 
 	if err != nil {
-		return primitive.ObjectID{}, err
+
+		return 0, err
 	}
-	return res.UpsertedID.(primitive.ObjectID), nil
+
+	return res.UpsertedCount, nil
 
 }
 
-
-func (c *ChatRepository) FetchRecipient(chatId primitive.ObjectID,userId uint)(uint,error){
-	filter:=bson.M{"_id":chatId}
+func (c *ChatRepository) FetchRecipient(chatId primitive.ObjectID, userId uint) (uint, error) {
+	filter := bson.M{"_id": chatId}
 	projection := bson.M{"_id": 0, "users": bson.M{"$elemMatch": bson.M{"$ne": userId}}, "created_at": 0}
 
-	chat:=domain.Chats{}
-	c.ChatCollection.FindOne(context.TODO(),filter,options.FindOne().SetProjection(projection)).Decode(&chat)
-	
-	return chat.Users[0],nil
-	
+	chat := domain.Chats{}
+	c.ChatCollection.FindOne(context.TODO(), filter, options.FindOne().SetProjection(projection)).Decode(&chat)
+
+	return chat.Users[0], nil
+
 }

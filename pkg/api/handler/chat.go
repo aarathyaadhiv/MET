@@ -6,7 +6,6 @@ import (
 
 	handlerInterface "github.com/aarathyaadhiv/met/pkg/api/handler/interface"
 	useCaseInterface "github.com/aarathyaadhiv/met/pkg/usecase/interface"
-	"github.com/aarathyaadhiv/met/pkg/utils/models"
 	"github.com/aarathyaadhiv/met/pkg/utils/response"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -37,7 +36,7 @@ type VideoCall struct {
 var (
 	connection = make(map[*websocket.Conn]*client)
 	user       = make(map[uint]*websocket.Conn)
-	videoCall=make(map[string]*VideoCall)
+	videoCall  = make(map[string]*VideoCall)
 )
 
 type ChatHandler struct {
@@ -102,13 +101,13 @@ func (t *ChatHandler) GetMessages(c *gin.Context) {
 	}
 	succRes := response.MakeResponse(http.StatusOK, "successfully showing messages in the given chatId", res, nil)
 	c.JSON(http.StatusOK, succRes)
-	
+
 }
 
-func (t *ChatHandler) ChatPage(c *gin.Context){
-	chatId:= c.Param("chatId")
-	
-	c.HTML(http.StatusOK,"index.html",chatId)
+func (t *ChatHandler) ChatPage(c *gin.Context) {
+	chatId := c.Param("chatId")
+
+	c.HTML(http.StatusOK, "index.html", chatId)
 }
 
 //only for without websocket testing
@@ -162,27 +161,29 @@ func (t *ChatHandler) ChatPage(c *gin.Context){
 // @Tags Chat
 // @Accept json
 // @Produce json
-// @Param messageIds body models.MakeReadReq true "Array of message IDs to mark as read"
+// @Param chatId path string true "chatID" format(objectId)
 // @Success 200 {object} response.Response{} "Successfully marked messages as read"
 // @Failure 400 {object} response.Response{} "Bad Request"
 // @Failure 401 {object} response.Response{} "Unauthorized"
 // @Failure 500 {object} response.Response{} "Internal Server Error"
-// @Router /chat/message/read [patch]
+// @Router /chat/{chatId}/message [patch]
 func (t *ChatHandler) MakeMessageRead(c *gin.Context) {
-	id, ok := c.Get("userId")
+	userId, ok := c.Get("userId")
 	if !ok {
 		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, "error in retrieving user id")
 		c.JSON(http.StatusUnauthorized, errRes)
 		return
 	}
-	var messageId models.MakeReadReq
-	if err := c.BindJSON(&messageId); err != nil {
-		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+	chatId, err := primitive.ObjectIDFromHex(c.Param("chatId"))
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "string conversion failed", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	res, err := t.UseCase.ReadMessage(id.(uint), messageId.MessageIds)
+
+	res, err := t.UseCase.ReadMessage(userId.(uint), chatId)
 	if err != nil {
+		fmt.Println("err", err)
 		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errRes)
 		return
@@ -255,7 +256,6 @@ func (t *ChatHandler) Chat(c *gin.Context) {
 	}()
 }
 
-
 func (t *ChatHandler) VideoCall(c *gin.Context) {
 	peerConnectionConfig := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
@@ -282,7 +282,7 @@ func (t *ChatHandler) VideoCall(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errRes)
 		return
 	}
-	gatherComplete:=webrtc.GatheringCompletePromise(peerConnection)
+	gatherComplete := webrtc.GatheringCompletePromise(peerConnection)
 
 	peerConnection.SetLocalDescription(answer)
 	<-gatherComplete
