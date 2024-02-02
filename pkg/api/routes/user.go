@@ -50,5 +50,7 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 			subscription.GET("/payment/:orderId",subscriptionHandler.MakePayment)
 			subscription.GET("/payment-success",subscriptionHandler.VerifyPayment)
 		}
+		route.GET("/interests",homeHandler.ShowInterests)
+		route.POST("/logout",userHandler.Logout)
 	}
 }

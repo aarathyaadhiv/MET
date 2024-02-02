@@ -2,7 +2,9 @@ package usecase
 
 import (
 	"errors"
+	"strconv"
 
+	"github.com/aarathyaadhiv/met/pkg/domain"
 	"github.com/aarathyaadhiv/met/pkg/helper"
 	interfaces "github.com/aarathyaadhiv/met/pkg/repository/interface"
 	useCaseInterface "github.com/aarathyaadhiv/met/pkg/usecase/interface"
@@ -17,7 +19,16 @@ func NewHomeUseCase(repo interfaces.HomeRepository) useCaseInterface.HomeUseCase
 	return &HomeUseCase{repo}
 }
 
-func (h *HomeUseCase) HomePage(id uint, page, count int) ([]response.Home, error) {
+func (h *HomeUseCase) HomePage(id uint, page, count int,interest bool,interestId string) ([]response.Home, error) {
+	if interest && interestId!=""{
+		return h.FilterByInterest(id,page,count,interestId)
+	}
+	if interest{
+		return h.ShowByInterest(id,page,count)
+	}
+	if interestId!=""{
+		return h.FilterByInterest(id,page,count,interestId)
+	}
 	preference, err := h.Repo.FetchPreference(id)
 	if err != nil {
 		return nil, errors.New("error in fetching preference")
@@ -88,4 +99,73 @@ func (h *HomeUseCase) HomePage(id uint, page, count int) ([]response.Home, error
 		return matchUsers, nil
 	}
 	return matchUsers[offset : offset+count], nil
+}
+
+func (h *HomeUseCase) Interests(id uint) ([]domain.Interests,error){
+	return h.Repo.ShowInterests(id)
+}
+
+
+func (h *HomeUseCase) FilterByInterest(id uint,page,count int,interest string)([]response.Home,error){
+	interestId,err:=strconv.Atoi(interest)
+	if err!=nil{
+		return nil,errors.New("error in string conversion")
+	}
+	res,err:=h.Repo.FetchUserByInterest(id,uint(interestId))
+	if err!=nil{
+		return nil,errors.New("error in fetching data")
+	}
+	users:=make([]response.Home,0)
+	for _,u:=range res{
+		block, err := h.Repo.IsBlocked(id, u.Id)
+		if err != nil {
+			return nil, errors.New("error in fetching match data")
+		}
+		if block {
+			continue
+		}
+		image, err := h.Repo.FetchImages(u.Id)
+		if err != nil {
+			return nil, errors.New("error in fetching images")
+		}
+		u.Images = image
+		users=append(users, u)
+	}
+	offset := (page - 1) * count
+	if len(users) < offset+count {
+		return users, nil
+	}
+	return users[offset : offset+count], nil
+}
+
+func (h *HomeUseCase) ShowByInterest(id uint,page,count int)([]response.Home,error){
+	userInterest,err:=h.Repo.FetchInterests(id)
+	if err!=nil{
+		return nil,errors.New("error in fetching data")
+	}
+	res,err:=h.Repo.FetchUserWithInterest(id,userInterest)
+	if err!=nil{
+		return nil,errors.New("error in fetching data")
+	}
+	users:=make([]response.Home,0)
+	for _,u:=range res{
+		block, err := h.Repo.IsBlocked(id, u.Id)
+		if err != nil {
+			return nil, errors.New("error in fetching match data")
+		}
+		if block {
+			continue
+		}
+		image, err := h.Repo.FetchImages(u.Id)
+		if err != nil {
+			return nil, errors.New("error in fetching images")
+		}
+		u.Images = image
+		users=append(users, u)
+	}
+	offset := (page - 1) * count
+	if len(users) < offset+count {
+		return users, nil
+	}
+	return users[offset : offset+count], nil
 }

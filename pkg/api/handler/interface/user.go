@@ -14,4 +14,5 @@ type UserHandler interface{
 	UpdateUser(c *gin.Context)
 	UpdatePreference(c *gin.Context)
 	GetPreference(c *gin.Context)
+	Logout(c *gin.Context)
 }

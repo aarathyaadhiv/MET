@@ -342,3 +342,13 @@ func (u *UserHandler) GetPreference(c *gin.Context) {
 	succRes := response.MakeResponse(http.StatusOK, "successfully showing preference", res, nil)
 	c.JSON(http.StatusOK, succRes)
 }
+
+// @Summary Logout user
+// @Description Remove access and refresh tokens from cookies
+// @Tags User Profile
+// @Produce json
+// @Router /logout [post]
+func (u *UserHandler) Logout(c *gin.Context) {
+	c.SetCookie("accessToken", "", -1, "", "", false, true)
+	c.SetCookie("refreshToken", "", -1, "", "", false, true)
+}

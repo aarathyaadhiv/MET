@@ -785,6 +785,18 @@ const docTemplate = `{
                         "description": "Number of items per page (default: 3)",
                         "name": "count",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "interest filter (default: false)",
+                        "name": "interest",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "interestId",
+                        "name": "interestId",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -802,6 +814,43 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/interests": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns interests of the user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Home"
+                ],
+                "summary": "Show user interests",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -922,6 +971,19 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/logout": {
+            "post": {
+                "description": "Remove access and refresh tokens from cookies",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Logout user",
+                "responses": {}
             }
         },
         "/match": {

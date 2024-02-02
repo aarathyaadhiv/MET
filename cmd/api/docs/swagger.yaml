@@ -577,6 +577,14 @@ paths:
         in: query
         name: count
         type: integer
+      - description: 'interest filter (default: false)'
+        in: query
+        name: interest
+        type: boolean
+      - description: interestId
+        in: query
+        name: interestId
+        type: integer
       produces:
       - application/json
       responses:
@@ -595,6 +603,29 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Display the home page for a user
+      tags:
+      - Home
+  /interests:
+    get:
+      description: Returns interests of the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Show user interests
       tags:
       - Home
   /like:
@@ -670,6 +701,15 @@ paths:
       summary: Like an user
       tags:
       - Likes
+  /logout:
+    post:
+      description: Remove access and refresh tokens from cookies
+      produces:
+      - application/json
+      responses: {}
+      summary: Logout user
+      tags:
+      - User Profile
   /match:
     get:
       consumes:

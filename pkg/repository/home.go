@@ -1,38 +1,38 @@
 package repository
 
 import (
+	"github.com/aarathyaadhiv/met/pkg/domain"
 	interfaces "github.com/aarathyaadhiv/met/pkg/repository/interface"
 	"github.com/aarathyaadhiv/met/pkg/utils/models"
 	"github.com/aarathyaadhiv/met/pkg/utils/response"
 	"gorm.io/gorm"
 )
 
-
-type HomeRepository struct{
+type HomeRepository struct {
 	DB *gorm.DB
 }
 
-func NewHomeRepository(db *gorm.DB)interfaces.HomeRepository{
+func NewHomeRepository(db *gorm.DB) interfaces.HomeRepository {
 	return &HomeRepository{db}
 }
 
-func(h *HomeRepository) FetchUser(id uint)(models.FetchUser,error){
+func (h *HomeRepository) FetchUser(id uint) (models.FetchUser, error) {
 	var user models.FetchUser
-	if err:=h.DB.Raw(`SELECT longitude,lattitude,age FROM users WHERE id=?`,id).Scan(&user).Error;err!=nil{
-		return models.FetchUser{},err
+	if err := h.DB.Raw(`SELECT longitude,lattitude,age FROM users WHERE id=?`, id).Scan(&user).Error; err != nil {
+		return models.FetchUser{}, err
 	}
-	return user,nil
+	return user, nil
 }
 
-func (h *HomeRepository) FetchUsers(maxAge,minAge int,gender,id uint)([]response.Home,error){
+func (h *HomeRepository) FetchUsers(maxAge, minAge int, gender, id uint) ([]response.Home, error) {
 	var users []response.Home
-	if err:=h.DB.Raw(`SELECT u.id,u.name,u.age,g.name as gender,u.city,u.country,u.longitude,u.lattitude,u.bio FROM users AS u 
+	if err := h.DB.Raw(`SELECT u.id,u.name,u.age,g.name as gender,u.city,u.country,u.longitude,u.lattitude,u.bio FROM users AS u 
 	JOIN 
 	genders AS g ON g.id=u.gender_id
-	WHERE u.age>? AND u.age<? AND u.gender_id=? AND u.id<>?`,minAge,maxAge,gender,id).Scan(&users).Error;err!=nil{
-		return nil,err
+	WHERE u.age>? AND u.age<? AND u.gender_id=? AND u.id<>?`, minAge, maxAge, gender, id).Scan(&users).Error; err != nil {
+		return nil, err
 	}
-	return users,nil
+	return users, nil
 }
 
 func (h *HomeRepository) FetchPreference(id uint) (models.Preference, error) {
@@ -74,4 +74,28 @@ func (h *HomeRepository) IsBlocked(userId, blockedId uint) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+func (h *HomeRepository) FetchUserWithInterest(id uint, interestId []uint) ([]response.Home, error) {
+	var users []response.Home
+	if err := h.DB.Raw(`SELECT DISTINCT u.id,u.name,u.age,g.name as gender,u.city,u.country,u.longitude,u.lattitude,u.bio FROM user_interests AS i JOIN users AS u ON i.user_id=u.id JOIN genders AS g ON g.id=u.gender_id WHERE u.id<>? AND i.interest_id IN(?)`, id, interestId).Scan(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (h *HomeRepository) FetchUserByInterest(id uint, interestId uint) ([]response.Home, error) {
+	var users []response.Home
+	if err := h.DB.Raw(`SELECT DISTINCT u.id,u.name,u.age,g.name as gender,u.city,u.country,u.longitude,u.lattitude,u.bio FROM user_interests as i JOIN users AS u ON u.id=i.user_id JOIN genders g ON u.gender_id=g.id WHERE u.id<>? AND i.interest_id=?`, id, interestId).Scan(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (h *HomeRepository) ShowInterests(id uint) ([]domain.Interests, error) {
+	var interests []domain.Interests
+	if err := h.DB.Raw(`SELECT u.interest_id as id,i.interest FROM user_interests AS u JOIN interests AS i ON i.id=u.interest_id WHERE u.user_id=?`, id).Scan(&interests).Error; err != nil {
+		return nil, err
+	}
+	return interests, nil
 }
