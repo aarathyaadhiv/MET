@@ -1122,6 +1122,31 @@ paths:
       summary: Add an order for a subscription
       tags:
       - Subscription
+  /subscription/orders:
+    get:
+      consumes:
+      - application/json
+      description: Get orders associated with the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully showing orders
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: unauthorised
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get orders for a user
+      tags:
+      - Subscription
   /subscription/payment-success:
     get:
       consumes:

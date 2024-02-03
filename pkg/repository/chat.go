@@ -51,6 +51,24 @@ func (c *ChatRepository) IsChatExist(user1, user2 uint) (bool, error) {
 	return true, nil
 }
 
+func (c *ChatRepository) IsValidChatId(chatId primitive.ObjectID)(bool,error){
+	filter := bson.M{
+		"_id": chatId,
+	}
+	
+	var chat domain.Chats
+	err := c.ChatCollection.FindOne(context.TODO(), filter).Decode(&chat)
+	
+	if err == mongo.ErrNoDocuments {
+		return false, nil // ChatId does not exist
+	} else if err != nil {
+		return false, err // Error occurred while querying the database
+	}
+	
+	return true, nil // ChatId exists
+	
+}
+
 func (c *ChatRepository) GetAllChats(id uint) ([]models.Chat, error) {
 	// Define the filter and projection
 	filter := bson.M{"users": bson.M{"$in": []uint{id}}}

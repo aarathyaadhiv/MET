@@ -5,6 +5,7 @@ import "github.com/aarathyaadhiv/met/pkg/utils/response"
 
 
 type ActivityRepository interface{
+	IsUserExist(id uint) (bool, error)
 	Like(likedId,userId uint)(response.Like,error)
 	Unlike(likeId,userId uint)(response.Like,error)
 	GetLike(page,count int,userId uint)([]response.ShowUserDetails,error)

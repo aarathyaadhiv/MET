@@ -70,6 +70,13 @@ func (a *AdminUseCase) AdminLogin(admin models.Admin) (response.Token, error) {
 
 
 func (a *AdminUseCase) BlockUser(id uint)(uint,error){
+	isExist,err:=a.Repo.IsUserExist(id)
+	if err!=nil{
+		return 0,errors.New("error in connecting with database")
+	}
+	if !isExist{
+		return 0,errors.New("user id is not existing")
+	}
 	block,err:=a.Repo.IsUserBlocked(id)
 	if err!=nil{
 		return 0,errors.New("error in connecting with database")
@@ -85,6 +92,13 @@ func (a *AdminUseCase) BlockUser(id uint)(uint,error){
 }
 
 func (a *AdminUseCase) UnBlockUser(id uint)(uint,error){
+	isExist,err:=a.Repo.IsUserExist(id)
+	if err!=nil{
+		return 0,errors.New("error in connecting with database")
+	}
+	if !isExist{
+		return 0,errors.New("user id is not existing")
+	}
 	block,err:=a.Repo.IsUserBlocked(id)
 	if err!=nil{
 		return 0,errors.New("error in connecting with database")
@@ -108,6 +122,13 @@ func (a *AdminUseCase) GetUsers(page,count int)([]response.User,error){
 }
 
 func (a *AdminUseCase) GetSingleUser(id uint)(response.UserDetailsToAdmin,error){
+	isExist,err:=a.Repo.IsUserExist(id)
+	if err!=nil{
+		return response.UserDetailsToAdmin{},errors.New("error in connecting with database")
+	}
+	if !isExist{
+		return response.UserDetailsToAdmin{},errors.New("user id is not existing")
+	}
 	res,err:=a.Repo.GetSingleUser(id)
 	if err!=nil{
 		return response.UserDetailsToAdmin{},errors.New("error in fetching data ")
@@ -115,15 +136,22 @@ func (a *AdminUseCase) GetSingleUser(id uint)(response.UserDetailsToAdmin,error)
 	return res,nil
 }
 
-func (a *AdminUseCase) ReportedUsers()(response.ReportedUsers,error){
+func (a *AdminUseCase) ReportedUsers()([]response.ReportedUsers,error){
 	res,err:=a.Repo.ReportedUsers()
 	if err!=nil{
-		return response.ReportedUsers{},errors.New("error in fetching data")
+		return nil,errors.New("error in fetching data")
 	}
 	return res,nil
 }
 
 func (a *AdminUseCase) ReportedUser(reportedUserId uint)(response.ReportedUser,error){
+	isExist,err:=a.Repo.IsReportedUser(reportedUserId)
+	if err!=nil{
+		return response.ReportedUser{},errors.New("error in fetching data")
+	}
+	if !isExist{
+		return response.ReportedUser{},errors.New("the given id is not reported by any users")
+	}
 	res,err:=a.Repo.ReportedUser(reportedUserId)
 	if err!=nil{
 		return response.ReportedUser{},errors.New("error in fetching data")

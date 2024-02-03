@@ -47,6 +47,7 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 			subscription.GET("",subscriptionHandler.GetToUsers)
 			subscription.GET("/:subscriptionId",subscriptionHandler.GetByIdToUsers)
 			subscription.POST("/order/:subscriptionId",subscriptionHandler.AddOrder)
+			subscription.GET("/orders",subscriptionHandler.GetOrders)
 			subscription.GET("/payment/:orderId",subscriptionHandler.MakePayment)
 			subscription.GET("/payment-success",subscriptionHandler.VerifyPayment)
 		}

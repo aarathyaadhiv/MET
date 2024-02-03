@@ -18,4 +18,5 @@ type SubscriptionUseCase interface {
 	AddOrder(sID, userId uint) (response.Order, error)
 	MakePayment(orderId uint) (response.OrderDetails,error)
 	VerifyPayment(orderId uint,signature string,paymentId string)error
+	GetOrders(userId uint)([]response.ShowOrder,error)
 }

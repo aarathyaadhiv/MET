@@ -13,4 +13,5 @@ type SubscriptionHandler interface {
 	AddOrder(c *gin.Context)
 	MakePayment(c *gin.Context)
 	VerifyPayment(c *gin.Context)
+	GetOrders(c *gin.Context)
 }

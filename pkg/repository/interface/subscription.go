@@ -8,6 +8,7 @@ import (
 
 type SubscriptionRepository interface {
 	IsExist(name string)(bool,error)
+	IsExistById(sId uint)(bool,error)
 	Add(sub models.Subscription) (uint, error)
 	Update(sub models.Subscription, sID uint) (uint, error)
 	Activate(sID uint) (uint, error)
@@ -18,10 +19,12 @@ type SubscriptionRepository interface {
 	GetToUsers()([]response.BriefSubscription,error)
 	GetByIdToUsers(sID uint) (response.ShowSubscription, error)  
 	AddOrder(order models.Order)(uint,error)
+	IsOrderExist(orderId uint)(bool,error)
 	GetDetailsForPayment(orderId uint)(models.OrderDetails,error)
 	AddRazorId(orderId uint,razorId string)error
 	AddPaymentId(orderId uint,paymentId,status string)(models.PaymentRes,error)
 	FetchRazorId(orderId uint)(string,error)
 	OrderStatus(orderId uint)(string,error)
 	MakeUserSubscribed(subUser models.PaymentRes)error
+	ShowOrders(userId uint)([]response.ShowOrder,error)
 }

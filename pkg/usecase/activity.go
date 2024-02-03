@@ -18,6 +18,13 @@ func NewActivityUseCase(like interfaces.ActivityRepository, chat interfaces.Chat
 }
 
 func (l *ActivityUseCase) Like(likedId, userId uint) (response.Like, error) {
+	isIdExist, err := l.Lik.IsUserExist(likedId)
+	if err != nil {
+		return response.Like{}, errors.New("error in connecting database")
+	}
+	if !isIdExist {
+		return response.Like{}, errors.New("you are trying to like a non existing userId")
+	}
 	isExist, err := l.Lik.IsLikeExist(userId, likedId)
 	if err != nil {
 		return response.Like{}, errors.New("error in connecting database")
@@ -76,6 +83,13 @@ func (l *ActivityUseCase) Like(likedId, userId uint) (response.Like, error) {
 }
 
 func (l *ActivityUseCase) Unlike(likeId, userId uint) (response.Like, error) {
+	isIdExist, err := l.Lik.IsUserExist(likeId)
+	if err != nil {
+		return response.Like{}, errors.New("error in connecting database")
+	}
+	if !isIdExist {
+		return response.Like{}, errors.New("you are trying to unlike a non existing userId")
+	}
 	isExist, err := l.Lik.IsLikeExist(userId, likeId)
 	if err != nil {
 		return response.Like{}, errors.New("error in connecting database")
@@ -152,6 +166,13 @@ func (l *ActivityUseCase) GetMatch(userId uint, page, count int) (response.ShowM
 }
 
 func (l *ActivityUseCase) Report(reportId, userId uint, message string) (response.Report, error) {
+	isIdExist, err := l.Lik.IsUserExist(reportId)
+	if err != nil {
+		return response.Report{}, errors.New("error in connecting database")
+	}
+	if !isIdExist {
+		return response.Report{}, errors.New("you are trying to report a non existing userId")
+	}
 	isReported, err := l.Lik.IsReported(userId, reportId)
 	if err != nil {
 		return response.Report{}, errors.New("error in fetching data")
@@ -167,6 +188,13 @@ func (l *ActivityUseCase) Report(reportId, userId uint, message string) (respons
 }
 
 func (l *ActivityUseCase) BlockUser(userId, blockedId uint) (response.BlockUser, error) {
+	isIdExist, err := l.Lik.IsUserExist(blockedId)
+	if err != nil {
+		return response.BlockUser{}, errors.New("error in connecting database")
+	}
+	if !isIdExist {
+		return response.BlockUser{}, errors.New("you are trying to block a non existing userId")
+	}
 	isBlocked, err := l.Lik.IsBlocked(userId, blockedId)
 	if err != nil {
 		return response.BlockUser{}, errors.New("error in fetching data")

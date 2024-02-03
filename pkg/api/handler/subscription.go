@@ -314,3 +314,31 @@ func (s *SubscriptionHandler) VerifyPayment(c *gin.Context){
 	succRes := response.MakeResponse(http.StatusOK, "successfully verified payment", nil, nil)
 	c.JSON(http.StatusOK, succRes)
 }
+
+// @Summary Get orders for a user
+// @Description Get orders associated with the authenticated user
+// @Tags Subscription
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{} "successfully showing orders"
+// @Failure 401 {object} response.Response{} "unauthorised"
+// @Failure 500 {object} response.Response{} "internal server error"
+// @Router /subscription/orders [get]
+func (s *SubscriptionHandler) GetOrders(c *gin.Context){
+	id, ok := c.Get("userId")
+	if !ok {
+		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, "error in retrieving user id")
+		c.JSON(http.StatusUnauthorized, errRes)
+		return
+	}
+
+	res,err:=s.Usecase.GetOrders(id.(uint))
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	succRes := response.MakeResponse(http.StatusOK, "successfully showing orders", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}

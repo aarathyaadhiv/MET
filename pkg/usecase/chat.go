@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"time"
 
 	"github.com/aarathyaadhiv/met/pkg/domain"
@@ -40,6 +41,13 @@ func (c *ChatUseCase) GetAllChats(userId uint) ([]response.ChatResponse, error) 
 }
 
 func (c *ChatUseCase) GetMessages(chatId primitive.ObjectID) ([]domain.Messages, error) {
+	isValid, err := c.Repo.IsValidChatId(chatId)
+	if err != nil {
+		return nil, err
+	}
+	if !isValid {
+		return nil, errors.New("chatId is not existing")
+	}
 	messages, err := c.Repo.GetMessages(chatId)
 	if err != nil {
 		return nil, err
@@ -49,6 +57,13 @@ func (c *ChatUseCase) GetMessages(chatId primitive.ObjectID) ([]domain.Messages,
 }
 
 func (c *ChatUseCase) SaveMessage(chatId primitive.ObjectID, senderId uint, message string) (primitive.ObjectID, error) {
+	isValid, err := c.Repo.IsValidChatId(chatId)
+	if err != nil {
+		return primitive.ObjectID{}, err
+	}
+	if !isValid {
+		return primitive.ObjectID{}, errors.New("chatId is not existing")
+	}
 	messages := domain.Messages{
 		SenderID:       senderId,
 		ChatID:         chatId,
@@ -64,6 +79,13 @@ func (c *ChatUseCase) SaveMessage(chatId primitive.ObjectID, senderId uint, mess
 
 func (c *ChatUseCase) ReadMessage(userId uint, chatId primitive.ObjectID) (int64, error) {
 
+	isValid, err := c.Repo.IsValidChatId(chatId)
+	if err != nil {
+		return 0, err
+	}
+	if !isValid {
+		return 0, errors.New("chatId is not existing")
+	}
 	senderId, err := c.Repo.FetchRecipient(chatId, userId)
 
 	if err != nil {
@@ -79,6 +101,13 @@ func (c *ChatUseCase) ReadMessage(userId uint, chatId primitive.ObjectID) (int64
 }
 
 func (c *ChatUseCase) FetchRecipient(chatId primitive.ObjectID, userId uint) (uint, error) {
+	isValid, err := c.Repo.IsValidChatId(chatId)
+	if err != nil {
+		return 0, err
+	}
+	if !isValid {
+		return 0, errors.New("chatId is not existing")
+	}
 	res, err := c.Repo.FetchRecipient(chatId, userId)
 	if err != nil {
 		return 0, err

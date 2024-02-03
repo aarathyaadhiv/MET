@@ -39,6 +39,13 @@ func (s *SubscriptionUseCase) Add(sub models.Subscription) (response.Subscriptio
 }
 
 func (s *SubscriptionUseCase) Update(sub models.Subscription, sID uint) (response.Subscription, error) {
+	isExist,err:=s.Repo.IsExistById(sID)
+	if err != nil {
+		return response.Subscription{}, errors.New("error while fetching")
+	}
+	if !isExist{
+		return response.Subscription{},errors.New("this subscription id is not existing")
+	}
 	res, err := s.Repo.Update(sub, sID)
 	if err != nil {
 		return response.Subscription{}, errors.New("error while updating")
@@ -47,6 +54,13 @@ func (s *SubscriptionUseCase) Update(sub models.Subscription, sID uint) (respons
 }
 
 func (s *SubscriptionUseCase) Activate(sID uint) (response.Subscription, error) {
+	isExist,err:=s.Repo.IsExistById(sID)
+	if err != nil {
+		return response.Subscription{}, errors.New("error while fetching")
+	}
+	if !isExist{
+		return response.Subscription{},errors.New("this subscription id is not existing")
+	}
 	isActive, err := s.Repo.IsActive(sID)
 	if err != nil {
 		return response.Subscription{}, errors.New("error in fetcing subscription details")
@@ -62,6 +76,13 @@ func (s *SubscriptionUseCase) Activate(sID uint) (response.Subscription, error) 
 }
 
 func (s *SubscriptionUseCase) Dectivate(sID uint) (response.Subscription, error) {
+	isExist,err:=s.Repo.IsExistById(sID)
+	if err != nil {
+		return response.Subscription{}, errors.New("error while fetching")
+	}
+	if !isExist{
+		return response.Subscription{},errors.New("this subscription id is not existing")
+	}
 	isActive, err := s.Repo.IsActive(sID)
 	if err != nil {
 		return response.Subscription{}, errors.New("error in fetcing subscription details")
@@ -101,6 +122,13 @@ func (s *SubscriptionUseCase) GetToUsers() ([]response.BriefSubscription, error)
 }
 
 func (s *SubscriptionUseCase) GetByIdToUsers(sID uint) (response.ShowSubscription, error) {
+	isExist,err:=s.Repo.IsExistById(sID)
+	if err != nil {
+		return response.ShowSubscription{}, errors.New("error while fetching")
+	}
+	if !isExist{
+		return response.ShowSubscription{},errors.New("this subscription id is not existing")
+	}
 	res, err := s.Repo.GetByIdToUsers(sID)
 	if err != nil {
 		return response.ShowSubscription{}, err
@@ -109,6 +137,13 @@ func (s *SubscriptionUseCase) GetByIdToUsers(sID uint) (response.ShowSubscriptio
 }
 
 func (s *SubscriptionUseCase) AddOrder(sID, userId uint) (response.Order, error) {
+	isExist,err:=s.Repo.IsExistById(sID)
+	if err != nil {
+		return response.Order{}, errors.New("error while fetching")
+	}
+	if !isExist{
+		return response.Order{},errors.New("this subscription id is not existing")
+	}
 	order := models.Order{
 		SubscriptionId: sID,
 		UserId:         userId,
@@ -123,6 +158,13 @@ func (s *SubscriptionUseCase) AddOrder(sID, userId uint) (response.Order, error)
 }
 
 func (s *SubscriptionUseCase) MakePayment(orderId uint) (response.OrderDetails, error) {
+	isExist,err:=s.Repo.IsOrderExist(orderId)
+	if err != nil {
+		return response.OrderDetails{}, errors.New("error in fetching data")
+	}
+	if !isExist{
+		return response.OrderDetails{},errors.New("orderId is not existing")
+	}
 	status, err := s.Repo.OrderStatus(orderId)
 	if err != nil {
 		return response.OrderDetails{}, err
@@ -163,6 +205,13 @@ func (s *SubscriptionUseCase) MakePayment(orderId uint) (response.OrderDetails, 
 }
 
 func (s *SubscriptionUseCase) VerifyPayment(orderId uint, signature string, paymentId string) error {
+	isExist,err:=s.Repo.IsOrderExist(orderId)
+	if err != nil {
+		return  errors.New("error in fetching data")
+	}
+	if !isExist{
+		return errors.New("orderId is not existing")
+	}
 	status, err := s.Repo.OrderStatus(orderId)
 	if err != nil {
 		return err
@@ -188,4 +237,9 @@ func (s *SubscriptionUseCase) VerifyPayment(orderId uint, signature string, paym
 
 	}
 	return errors.New("the payment received is not from the authenticated resource")
+}
+
+
+func (s *SubscriptionUseCase) GetOrders(userId uint)([]response.ShowOrder,error){
+	return s.Repo.ShowOrders(userId)
 }

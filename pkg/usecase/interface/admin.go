@@ -12,6 +12,6 @@ type AdminUseCase interface {
 	UnBlockUser(id uint) (uint, error)
 	GetUsers(page, count int) ([]response.User, error)
 	GetSingleUser(id uint) (response.UserDetailsToAdmin, error)
-	ReportedUsers() (response.ReportedUsers, error)
+	ReportedUsers() ([]response.ReportedUsers, error)
 	ReportedUser(reportedUserId uint) (response.ReportedUser, error)
 }

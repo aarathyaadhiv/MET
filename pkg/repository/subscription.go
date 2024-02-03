@@ -24,6 +24,14 @@ func (s *SubscriptionRepository) IsExist(name string) (bool, error) {
 	return count > 0, nil
 }
 
+func (s *SubscriptionRepository) IsExistById(sId uint)(bool,error){
+	var count int
+	if err:=s.DB.Raw(`SELECT COUNT(*) FROM subscriptions WHERE id=?`,sId).Scan(&count).Error;err!=nil{
+		return false,err
+	}
+	return count>0,nil
+}
+
 func (s *SubscriptionRepository) Add(sub models.Subscription) (uint, error) {
 	var id uint
 	if err := s.DB.Raw(`INSERT INTO subscriptions(name,amount,days,likes,see_like) VALUES(?,?,?,?,?) RETURNING id`, sub.Name, sub.Amount, sub.Days, sub.Likes, sub.SeeLike).Scan(&id).Error; err != nil {
@@ -104,6 +112,14 @@ func (s *SubscriptionRepository) AddOrder(order models.Order) (uint, error) {
 	return id, nil
 }
 
+func (s *SubscriptionRepository) IsOrderExist(orderId uint)(bool,error){
+	var count int
+	if err:=s.DB.Raw(`SELECT COUNT(*) FROM subscription_orders WHERE id=?`,orderId).Scan(&count).Error;err!=nil{
+		return false,err
+	}
+	return count>0,nil
+}
+
 func (s *SubscriptionRepository) GetDetailsForPayment(orderId uint)(models.OrderDetails,error){
 	var order models.OrderDetails
 	if err:=s.DB.Raw(`SELECT u.name AS user_name,s.amount FROM subscription_orders AS so JOIN users AS u ON so.user_id=u.id JOIN subscriptions s ON so.subscription_id=s.id WHERE so.id=?`,orderId).Scan(&order).Error;err!=nil{
@@ -145,4 +161,25 @@ func (s *SubscriptionRepository) OrderStatus(orderId uint)(string,error){
 
 func (s *SubscriptionRepository) MakeUserSubscribed(subUser models.PaymentRes)error{
 	return s.DB.Exec(`UPDATE users SET is_subscribed=?,like_count=(SELECT likes FROM subscriptions WHERE id=?),subscription_id=? WHERE id=?`,true,subUser.SubscriptionId,subUser.SubscriptionId,subUser.UserId).Error
+}
+
+func (s *SubscriptionRepository) ShowOrders(userId uint)([]response.ShowOrder,error){
+	var orders []response.ShowOrder
+	if err:=s.DB.Raw(`SELECT
+    o.id,
+    o.subscription_id,
+    s.name AS subscription_name,
+    s.amount,
+    TO_CHAR(o.subscribe_date, 'YYYY-MM-DD') AS subscribe_date,
+    TO_CHAR(o.subscribe_date + s.days * INTERVAL '1 day', 'YYYY-MM-DD') AS expiry_date,
+    o.status
+FROM
+    subscription_orders AS o
+JOIN
+    subscriptions AS s ON s.id = o.subscription_id
+WHERE
+    o.user_id = ?`,userId).Scan(&orders).Error;err!=nil{
+		return nil,err
+	}
+	return orders,nil
 }

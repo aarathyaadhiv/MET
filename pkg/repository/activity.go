@@ -16,6 +16,14 @@ func NewActivityRepository(db *gorm.DB) interfaces.ActivityRepository {
 	return &ActivityRepository{db}
 }
 
+func (l *ActivityRepository) IsUserExist(id uint) (bool, error) {
+	var count int
+	if err := l.DB.Raw(`SELECT COUNT(*) FROM users WHERE id=?`, id).Scan(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func (l *ActivityRepository) Like(likedId, userId uint) (response.Like, error) {
 	var like response.Like
 	if err := l.DB.Raw(`INSERT INTO likes(user_id,liked_id,time) VALUES(?,?,?) RETURNING user_id,liked_id`, userId, likedId, time.Now()).Scan(&like).Error; err != nil {

@@ -84,6 +84,14 @@ func (h *HomeRepository) FetchUserWithInterest(id uint, interestId []uint) ([]re
 	return users, nil
 }
 
+func (h *HomeRepository) IsInterestValid(id uint,interestId uint)(bool,error){
+	var count int
+	if err:=h.DB.Raw(`SELECT COUNT(*) FROM user_interests WHERE user_id=? AND interest_id=?`,id,interestId).Scan(&count).Error;err!=nil{
+		return false,err
+	}
+	return count>0,nil
+}
+
 func (h *HomeRepository) FetchUserByInterest(id uint, interestId uint) ([]response.Home, error) {
 	var users []response.Home
 	if err := h.DB.Raw(`SELECT DISTINCT u.id,u.name,u.age,g.name as gender,u.city,u.country,u.longitude,u.lattitude,u.bio FROM user_interests as i JOIN users AS u ON u.id=i.user_id JOIN genders g ON u.gender_id=g.id WHERE u.id<>? AND i.interest_id=?`, id, interestId).Scan(&users).Error; err != nil {

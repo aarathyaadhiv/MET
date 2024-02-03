@@ -38,3 +38,13 @@ type OrderDetails struct {
 	OrderId    uint
 	AmountPisa int
 }
+
+type ShowOrder struct {
+	Id               uint    `json:"id"`
+	SubscriptionId   uint    `json:"subscription_id"`
+	SubscriptionName string  `json:"subscription_name"`
+	Amount           float64 `json:"amount"`
+	SubscribeDate    string  `json:"subscribe_date"`
+	ExpiryDate       string  `json:"expiry_date"`
+	Status           string  `json:"status"`
+}

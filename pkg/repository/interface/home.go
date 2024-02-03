@@ -15,6 +15,7 @@ type HomeRepository interface {
 	IsLikeExist(userId, likedId uint) (bool, error)
 	IsBlocked(userId, blockedId uint) (bool, error)
 	FetchUserWithInterest(id uint, interestId []uint) ([]response.Home, error)
+	IsInterestValid(id uint,interestId uint)(bool,error)
 	FetchUserByInterest(id uint, interestId uint) ([]response.Home, error)
 	ShowInterests(id uint) ([]domain.Interests, error)
 }

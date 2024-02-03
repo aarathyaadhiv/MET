@@ -111,6 +111,13 @@ func (h *HomeUseCase) FilterByInterest(id uint,page,count int,interest string)([
 	if err!=nil{
 		return nil,errors.New("error in string conversion")
 	}
+	isValid,err:=h.Repo.IsInterestValid(id,uint(interestId))
+	if err!=nil{
+		return nil,errors.New("error in fetching data")
+	}
+	if !isValid{
+		return nil,errors.New("this interest id is not valid for this user")
+	}
 	res,err:=h.Repo.FetchUserByInterest(id,uint(interestId))
 	if err!=nil{
 		return nil,errors.New("error in fetching data")

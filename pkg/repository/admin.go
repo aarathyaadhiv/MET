@@ -40,6 +40,14 @@ func (a *AdminRepository) FetchAdmin(email string) (domain.Admin, error) {
 	return admin, nil
 }
 
+func (a *AdminRepository) IsUserExist(id uint)(bool,error){
+	var count int
+	if err:=a.DB.Raw(`SELECT COUNT(*) FROM users WHERE id=?`,id).Scan(&count).Error;err!=nil{
+		return false,err
+	}
+	return count>0,nil
+}
+
 func (a *AdminRepository) BlockUser(id uint) (uint, error) {
 	var userId uint
 	if err := a.DB.Raw(`UPDATE users SET is_block=true WHERE id=? RETURNING id `, id).Scan(&userId).Error; err != nil {
@@ -111,12 +119,20 @@ WHERE
 	return user, nil
 }
 
-func (a *AdminRepository) ReportedUsers()(response.ReportedUsers,error){
-	var reported response.ReportedUsers
+func (a *AdminRepository) ReportedUsers()([]response.ReportedUsers,error){
+	var reported []response.ReportedUsers
 	if err:=a.DB.Raw(`SELECT r.reported_id as id,u.name,COUNT(r.reported_id) as report_count FROM reported_users AS r JOIN users AS u ON u.id=r.reported_id GROUP BY r.reported_id,u.name`).Scan(&reported).Error;err!=nil{
-		return response.ReportedUsers{},err
+		return nil,err
 	}
 	return reported,nil
+}
+
+func (a *AdminRepository) IsReportedUser(id uint)(bool,error){
+	var count int
+	if err:=a.DB.Raw(`SELECT COUNT(*) FROM reported_users WHERE reported_id=?`,id).Scan(&count).Error;err!=nil{
+		return false,err
+	}
+	return count>0,nil
 }
 
 func (a *AdminRepository) ReportedUser(reportId uint)(response.ReportedUser,error){
