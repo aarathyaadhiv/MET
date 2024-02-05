@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 
 	"net/http"
 	"strconv"
@@ -301,7 +302,10 @@ func (u *UserHandler) UpdatePreference(c *gin.Context) {
 		return
 	}
 	var preference models.Preference
+	fmt.Println("preference", preference)
 	if err := c.BindJSON(&preference); err != nil {
+		fmt.Println("preference2", preference)
+		fmt.Println("err", err)
 		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
