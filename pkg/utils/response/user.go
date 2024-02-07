@@ -32,6 +32,7 @@ type UserDetails struct {
 type Home struct {
 	Id        uint     `json:"id"`
 	Name      string   `json:"name"`
+	Dob       string   `json:"dob"`
 	Age       int      `json:"age"`
 	Gender    string   `json:"gender"`
 	City      string   `json:"city"`
@@ -40,4 +41,5 @@ type Home struct {
 	Lattitude float64  `json:"lattitude"`
 	Bio       string   `json:"bio"`
 	Images    []string `json:"images"`
+	Interests []string `json:"interests"`
 }

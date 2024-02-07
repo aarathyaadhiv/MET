@@ -2,7 +2,6 @@ package response
 
 import "time"
 
-
 type Like struct {
 	UserId  uint `json:"user_id"`
 	LikedId uint `json:"liked_id"`
@@ -16,11 +15,13 @@ type ShowUserDetails struct {
 	City    string    `json:"city"`
 	Country string    `json:"country"`
 	Bio     string    `json:"bio"`
-	Image   string  `json:"image"`
+	Image   string    `json:"image"`
 }
 type ShowLike struct {
-	UserId uint          `json:"user_id"`
-	Likes  []ShowUserDetails `json:"likes"`
+	UserId       uint              `json:"user_id"`
+	IsSubscribed bool              `json:"is_subscribed"`
+	SeeLike      bool              `json:"see_like"`
+	Likes        []ShowUserDetails `json:"likes"`
 }
 
 type UnMatch struct {
@@ -29,7 +30,7 @@ type UnMatch struct {
 }
 
 type ShowMatch struct {
-	UserId  uint          `json:"user_id"`
+	UserId  uint              `json:"user_id"`
 	Matches []ShowUserDetails `json:"matches"`
 }
 

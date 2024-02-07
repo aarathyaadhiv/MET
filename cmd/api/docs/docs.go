@@ -1200,6 +1200,12 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Name",
+                        "name": "name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
                         "description": "Phone_number",
                         "name": "phone_number",
                         "in": "formData"

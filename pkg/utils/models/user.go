@@ -49,6 +49,7 @@ type UpdateLocation struct {
 }
 
 type UpdateUser struct {
+	Name      string          `json:"name" binding:"required" validate:"required"`
 	PhNo      string          `json:"ph_no" binding:"required" validate:"required"`
 	City      string          `json:"city" binding:"required" validate:"required"`
 	Country   string          `json:"country" binding:"required" validate:"required"`
@@ -58,6 +59,7 @@ type UpdateUser struct {
 }
 
 type UpdateUserDetails struct {
+	Name    string `json:"name" binding:"required" validate:"required"`
 	PhNo    string `json:"ph_no" binding:"required" validate:"required"`
 	City    string `json:"city" binding:"required" validate:"required"`
 	Country string `json:"country" binding:"required" validate:"required"`

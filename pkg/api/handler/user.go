@@ -228,6 +228,7 @@ func (u *UserHandler) GetProfile(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
+// @Param name formData string false "Name"
 // @Param phone_number formData string false "Phone_number"
 // @Param city formData string false "City"
 // @Param country formData string false "Country"
@@ -247,6 +248,7 @@ func (u *UserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 	var user models.UpdateUser
+	user.Name = c.Request.FormValue("name")
 	user.PhNo = c.Request.FormValue("phone_number")
 	user.City = c.Request.FormValue("city")
 	user.Country = c.Request.FormValue("country")

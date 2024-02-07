@@ -919,6 +919,10 @@ paths:
       description: Update user profile information including phone number, city, country,
         bio, interests, and images
       parameters:
+      - description: Name
+        in: formData
+        name: name
+        type: string
       - description: Phone_number
         in: formData
         name: phone_number

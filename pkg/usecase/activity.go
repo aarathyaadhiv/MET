@@ -25,6 +25,9 @@ func (l *ActivityUseCase) Like(likedId, userId uint) (response.Like, error) {
 	if !isIdExist {
 		return response.Like{}, errors.New("you are trying to like a non existing userId")
 	}
+	if likedId==userId{
+		return response.Like{},errors.New("cannot like the user itself")
+	}
 	isExist, err := l.Lik.IsLikeExist(userId, likedId)
 	if err != nil {
 		return response.Like{}, errors.New("error in connecting database")
@@ -116,16 +119,15 @@ func (l *ActivityUseCase) GetLike(page, count int, userId uint) (response.ShowLi
 	if err != nil {
 		return response.ShowLike{}, errors.New("error in fetching data from database")
 	}
-	if !isSubscribed {
-		return response.ShowLike{}, errors.New("to see likes take subscription")
+	seeLike:=false
+	if isSubscribed {
+		seeLike, err = l.Lik.SeeLike(userId)
+		if err != nil {
+			return response.ShowLike{}, errors.New("error in fetching data from database")
+		}
+		
 	}
-	seeLike, err := l.Lik.SeeLike(userId)
-	if err != nil {
-		return response.ShowLike{}, errors.New("error in fetching data from database")
-	}
-	if !seeLike {
-		return response.ShowLike{}, errors.New("to see likes upgrade your plan")
-	}
+	
 	res, err := l.Lik.GetLike(page, count, userId)
 	if err != nil {
 		return response.ShowLike{}, errors.New("error in fetching data from database")
@@ -133,6 +135,8 @@ func (l *ActivityUseCase) GetLike(page, count int, userId uint) (response.ShowLi
 
 	return response.ShowLike{
 		UserId: userId,
+		IsSubscribed:isSubscribed ,
+		SeeLike: seeLike,
 		Likes:  res,
 	}, nil
 

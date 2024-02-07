@@ -56,7 +56,7 @@ func (u *UserRepository) UpdateUser(id uint, profile models.ProfileSave) (uint, 
 }
 
 func (u *UserRepository) UpdateUserDetails(id uint, user models.UpdateUserDetails) error {
-	if err := u.DB.Exec(`UPDATE users SET ph_no=?,city=?,country=?,bio=? WHERE id=?`, user.PhNo, user.City, user.Country, user.Bio, id).Error; err != nil {
+	if err := u.DB.Exec(`UPDATE users SET name=?,ph_no=?,city=?,country=?,bio=? WHERE id=?`, user.Name, user.PhNo, user.City, user.Country, user.Bio, id).Error; err != nil {
 		return err
 	}
 	return nil
@@ -70,12 +70,12 @@ func (u *UserRepository) UpdateLocation(id uint, location models.UpdateLocation)
 	return userId, nil
 }
 
-func (u *UserRepository) IsInterestExist(id,interest uint)(bool,error){
+func (u *UserRepository) IsInterestExist(id, interest uint) (bool, error) {
 	var count int
-	if err:=u.DB.Raw(`SELECT COUNT(*) FROM user_interests WHERE user_id=? AND interest_id=?`,id,interest).Scan(&count).Error;err!=nil{
-		return false,err
+	if err := u.DB.Raw(`SELECT COUNT(*) FROM user_interests WHERE user_id=? AND interest_id=?`, id, interest).Scan(&count).Error; err != nil {
+		return false, err
 	}
-	return count>0,nil
+	return count > 0, nil
 }
 
 func (u *UserRepository) AddInterest(id, interest uint) error {
@@ -92,12 +92,12 @@ func (u *UserRepository) DeleteInterest(id uint) error {
 	return nil
 }
 
-func (u *UserRepository) IsImageExist(id uint,image string)(bool,error){
+func (u *UserRepository) IsImageExist(id uint, image string) (bool, error) {
 	var count int
-	if err:=u.DB.Raw(`SELECT COUNT(*) FROM images WHERE user_id=? AND image=?`,id,image).Scan(&count).Error;err!=nil{
-		return false,err
+	if err := u.DB.Raw(`SELECT COUNT(*) FROM images WHERE user_id=? AND image=?`, id, image).Scan(&count).Error; err != nil {
+		return false, err
 	}
-	return count>0,nil
+	return count > 0, nil
 }
 
 func (u *UserRepository) AddImage(id uint, image string) error {
@@ -171,10 +171,10 @@ func (u *UserRepository) GetPreference(id uint) (models.Preference, error) {
 	return preference, nil
 }
 
-func (u *UserRepository) FetchShortDetail(id uint)(models.UserShortDetail,error){
+func (u *UserRepository) FetchShortDetail(id uint) (models.UserShortDetail, error) {
 	var user models.UserShortDetail
-	if err:=u.DB.Raw(`SELECT u.id,u.name,i.image FROM users AS u JOIN images AS i ON i.user_id=u.id WHERE u.id=? `,id).Scan(&user).Error;err!=nil{
-		return models.UserShortDetail{},err
+	if err := u.DB.Raw(`SELECT u.id,u.name,i.image FROM users AS u JOIN images AS i ON i.user_id=u.id WHERE u.id=? `, id).Scan(&user).Error; err != nil {
+		return models.UserShortDetail{}, err
 	}
-	return user,nil
+	return user, nil
 }

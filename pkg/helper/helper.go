@@ -92,7 +92,7 @@ func AddImageToS3(image *multipart.FileHeader) (string, error) {
 	return upload.Location, nil
 }
 
-func SearchForInterest(a []uint, num uint, beg int, end int) bool {
+func SearchForInterest(a []string, num string, beg int, end int) bool {
 	for beg <= end {
 		mid := (end + beg) / 2
 		if a[mid] == num {

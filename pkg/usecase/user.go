@@ -176,6 +176,7 @@ func (u *UserUseCase) ShowProfile(id uint) (response.Profile, error) {
 
 func (u *UserUseCase) UpdateUser(user models.UpdateUser, id uint) (response.Id, error) {
 	users := models.UpdateUserDetails{
+		Name:    user.Name,
 		PhNo:    user.PhNo,
 		City:    user.City,
 		Country: user.Country,
