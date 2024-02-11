@@ -3,9 +3,11 @@ package usecase
 import (
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"regexp"
 
 	"github.com/aarathyaadhiv/met/pkg/config"
+	"github.com/aarathyaadhiv/met/pkg/domain"
 	"github.com/aarathyaadhiv/met/pkg/helper"
 	interfaces "github.com/aarathyaadhiv/met/pkg/repository/interface"
 	useCaseInterface "github.com/aarathyaadhiv/met/pkg/usecase/interface"
@@ -186,11 +188,28 @@ func (u *UserUseCase) UpdateUser(user models.UpdateUser, id uint) (response.Id, 
 	if err != nil {
 		return response.Id{}, errors.New("error in fetching data")
 	}
-	err = u.Repo.DeleteImage(id)
+
+	err = u.Repo.DeleteInterest(id)
 	if err != nil {
 		return response.Id{}, errors.New("error in fetching data")
 	}
-	for _, form := range user.Image.File {
+	for _, interest := range user.Interests {
+		err = u.Repo.AddInterest(id, interest)
+		if err != nil {
+			return response.Id{}, errors.New("error in saving interest")
+		}
+	}
+	return response.Id{
+		Id: id,
+	}, nil
+}
+
+func (u *UserUseCase) UpdateImage(id uint, image *multipart.Form) (response.Id, error) {
+	err := u.Repo.DeleteImage(id)
+	if err != nil {
+		return response.Id{}, errors.New("error in fetching data")
+	}
+	for _, form := range image.File {
 		for _, file := range form {
 			url, err := helper.AddImageToS3(file)
 			if err != nil {
@@ -201,16 +220,6 @@ func (u *UserUseCase) UpdateUser(user models.UpdateUser, id uint) (response.Id, 
 			if err != nil {
 				return response.Id{}, errors.New("error in saving image")
 			}
-		}
-	}
-	err = u.Repo.DeleteInterest(id)
-	if err != nil {
-		return response.Id{}, errors.New("error in fetching data")
-	}
-	for _, interest := range user.Interests {
-		err = u.Repo.AddInterest(id, interest)
-		if err != nil {
-			return response.Id{}, errors.New("error in saving interest")
 		}
 	}
 	return response.Id{
@@ -234,4 +243,19 @@ func (u *UserUseCase) GetPreference(id uint) (models.Preference, error) {
 		return models.Preference{}, err
 	}
 	return res, nil
+}
+
+func (u *UserUseCase) Interests(id uint,user bool) ([]domain.Interests, error) {
+	if user{
+		return u.Repo.ShowInterests(id)
+	}
+	return u.Repo.Interests()
+}
+
+func (u *UserUseCase) Gender()([]domain.Gender,error){
+	res,err:=u.Repo.Gender()
+	if err!=nil{
+		return nil,errors.New("error in fetching gender details")
+	}
+	return res,nil
 }

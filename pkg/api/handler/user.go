@@ -223,18 +223,12 @@ func (u *UserHandler) GetProfile(c *gin.Context) {
 }
 
 // @Summary Update user profile
-// @Description Update user profile information including phone number, city, country, bio, interests, and images
+// @Description Update user profile information including name,phone number, city, country, bio, interests
 // @Tags User Profile
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param name formData string false "Name"
-// @Param phone_number formData string false "Phone_number"
-// @Param city formData string false "City"
-// @Param country formData string false "Country"
-// @Param bio formData string false "Biography"
-// @Param interests formData string false "Comma-separated list of interests"
-// @Param images formData file false "Images to upload"
+// @Param user body models.UpdateUser true "user object in JSON format"
 // @Success 200 {object} response.Response{} "Successfully updated user profile"
 // @Failure 400 {object} response.Response{} "Bad request or invalid data format"
 // @Failure 401 {object} response.Response{} "Unauthorized access"
@@ -248,32 +242,13 @@ func (u *UserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 	var user models.UpdateUser
-	user.Name = c.Request.FormValue("name")
-	user.PhNo = c.Request.FormValue("phone_number")
-	user.City = c.Request.FormValue("city")
-	user.Country = c.Request.FormValue("country")
-	user.Bio = c.Request.FormValue("bio")
-	interest := c.Request.FormValue("interests")
-	var interests []uint
-	value := strings.Split(interest, ",")
-	for _, v := range value {
-		val, err := strconv.Atoi(v)
-		if err != nil {
-			errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
-			c.JSON(http.StatusBadRequest, errRes)
-			return
-		}
-		interests = append(interests, uint(val))
-	}
 
-	user.Interests = interests
-	image, err := c.MultipartForm()
-	if err != nil {
-		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+	if err := c.BindJSON(&user); err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "provided data is not in required format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	user.Image = image
+
 	res, err := u.UseCase.UpdateUser(user, id.(uint))
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
@@ -281,6 +256,41 @@ func (u *UserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 	succRes := response.MakeResponse(http.StatusOK, "successfully updated profile", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}
+
+// @Summary Update user Image
+// @Description Update user profile image
+// @Tags User Profile
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param images formData file false "Images to upload"
+// @Success 200 {object} response.Response{} "Successfully updated user profile image"
+// @Failure 400 {object} response.Response{} "Bad request or invalid data format"
+// @Failure 401 {object} response.Response{} "Unauthorized access"
+// @Failure 500 {object} response.Response{} "Internal server error"
+// @Router /profile [patch]
+func (u *UserHandler) UpdateImage(c *gin.Context) {
+	id, ok := c.Get("userId")
+	if !ok {
+		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, errors.New("error in retrieving user id"))
+		c.JSON(http.StatusUnauthorized, errRes)
+		return
+	}
+	image, err := c.MultipartForm()
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	res, err := u.UseCase.UpdateImage(id.(uint), image)
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	succRes := response.MakeResponse(http.StatusOK, "successfully updated profile image", res, nil)
 	c.JSON(http.StatusOK, succRes)
 }
 
@@ -346,6 +356,60 @@ func (u *UserHandler) GetPreference(c *gin.Context) {
 		return
 	}
 	succRes := response.MakeResponse(http.StatusOK, "successfully showing preference", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}
+
+// @Summary Show  interests
+// @Description Returns interests of the user if value of user is true, otherwise gives all interests
+// @Tags Profile
+// @Security ApiKeyAuth
+// @Produce json
+// @Param user query boolean false "filter for particular user (default: false)"
+// @Success 200 {object} response.Response{}
+// @Failure 401 {object} response.Response{}
+// @Failure 500 {object} response.Response{}
+// @Failure 400 {object} response.Response{}
+// @Router /interests [get]
+func (u *UserHandler) Interests(c *gin.Context) {
+	id, ok := c.Get("userId")
+	if !ok {
+		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthourized", nil, "error in getting id")
+		c.JSON(http.StatusUnauthorized, errRes)
+		return
+	}
+	user, err := strconv.ParseBool(c.DefaultQuery("user", "false"))
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "bad request", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	res, err := u.UseCase.Interests(id.(uint), user)
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	succRes := response.MakeResponse(http.StatusOK, "successfully showing interests ", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}
+
+// @Summary Show genders
+// @Description Returns available genders list 
+// @Tags Profile
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 200 {object} response.Response{}
+// @Failure 401 {object} response.Response{}
+// @Failure 500 {object} response.Response{}
+// @Router /genders [get]
+func (u *UserHandler) Genders(c *gin.Context) {
+	res, err := u.UseCase.Gender()
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	succRes := response.MakeResponse(http.StatusOK, "successfully showing genders", res, nil)
 	c.JSON(http.StatusOK, succRes)
 }
 

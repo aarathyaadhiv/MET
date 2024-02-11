@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"github.com/aarathyaadhiv/met/pkg/domain"
 	"github.com/aarathyaadhiv/met/pkg/utils/models"
 	"github.com/aarathyaadhiv/met/pkg/utils/response"
 )
@@ -27,4 +28,7 @@ type UserRepository interface {
 	UpdatePreference(id uint, preference models.Preference) (uint, error)
 	GetPreference(id uint) (models.Preference, error)
 	FetchShortDetail(id uint) (models.UserShortDetail, error)
+	ShowInterests(id uint) ([]domain.Interests, error)
+	Interests() ([]domain.Interests, error)
+	Gender() ([]domain.Gender, error)
 }

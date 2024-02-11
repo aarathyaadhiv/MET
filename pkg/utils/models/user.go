@@ -49,13 +49,12 @@ type UpdateLocation struct {
 }
 
 type UpdateUser struct {
-	Name      string          `json:"name" binding:"required" validate:"required"`
-	PhNo      string          `json:"ph_no" binding:"required" validate:"required"`
-	City      string          `json:"city" binding:"required" validate:"required"`
-	Country   string          `json:"country" binding:"required" validate:"required"`
-	Bio       string          `json:"bio" binding:"required" validate:"required"`
-	Image     *multipart.Form `json:"image" binding:"required" validate:"required"`
-	Interests []uint          `json:"interests" binding:"required" validate:"required"`
+	Name      string `json:"name" binding:"required" validate:"required"`
+	PhNo      string `json:"ph_no" binding:"required" validate:"required"`
+	City      string `json:"city" binding:"required" validate:"required"`
+	Country   string `json:"country" binding:"required" validate:"required"`
+	Bio       string `json:"bio" binding:"required" validate:"required"`
+	Interests []uint `json:"interests" binding:"required" validate:"required"`
 }
 
 type UpdateUserDetails struct {

@@ -1,7 +1,6 @@
 package interfaces
 
 import (
-	"github.com/aarathyaadhiv/met/pkg/domain"
 	"github.com/aarathyaadhiv/met/pkg/utils/models"
 	"github.com/aarathyaadhiv/met/pkg/utils/response"
 )
@@ -16,7 +15,6 @@ type HomeRepository interface {
 	IsLikeExist(userId, likedId uint) (bool, error)
 	IsBlocked(userId, blockedId uint) (bool, error)
 	FetchUserWithInterest(id uint, interestId []uint) ([]response.Home, error)
-	IsInterestValid(id uint,interestId uint)(bool,error)
+	IsInterestValid(id uint, interestId uint) (bool, error)
 	FetchUserByInterest(id uint, interestId uint) ([]response.Home, error)
-	ShowInterests(id uint) ([]domain.Interests, error)
 }

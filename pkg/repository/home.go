@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"github.com/aarathyaadhiv/met/pkg/domain"
 	interfaces "github.com/aarathyaadhiv/met/pkg/repository/interface"
 	"github.com/aarathyaadhiv/met/pkg/utils/models"
 	"github.com/aarathyaadhiv/met/pkg/utils/response"
@@ -106,12 +105,4 @@ func (h *HomeRepository) FetchUserByInterest(id uint, interestId uint) ([]respon
 		return nil, err
 	}
 	return users, nil
-}
-
-func (h *HomeRepository) ShowInterests(id uint) ([]domain.Interests, error) {
-	var interests []domain.Interests
-	if err := h.DB.Raw(`SELECT u.interest_id as id,i.interest FROM user_interests AS u JOIN interests AS i ON i.id=u.interest_id WHERE u.user_id=?`, id).Scan(&interests).Error; err != nil {
-		return nil, err
-	}
-	return interests, nil
 }

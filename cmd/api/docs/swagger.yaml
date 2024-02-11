@@ -62,6 +62,30 @@ definitions:
       see_like:
         type: boolean
     type: object
+  models.UpdateUser:
+    properties:
+      bio:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      interests:
+        items:
+          type: integer
+        type: array
+      name:
+        type: string
+      ph_no:
+        type: string
+    required:
+    - bio
+    - city
+    - country
+    - interests
+    - name
+    - ph_no
+    type: object
   response.Response:
     properties:
       data: {}
@@ -562,6 +586,29 @@ paths:
       summary: Mark messages as read
       tags:
       - Chat
+  /genders:
+    get:
+      description: Returns available genders list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Show genders
+      tags:
+      - Profile
   /home:
     get:
       consumes:
@@ -607,12 +654,22 @@ paths:
       - Home
   /interests:
     get:
-      description: Returns interests of the user
+      description: Returns interests of the user if value of user is true, otherwise
+        gives all interests
+      parameters:
+      - description: 'filter for particular user (default: false)'
+        in: query
+        name: user
+        type: boolean
       produces:
       - application/json
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/response.Response'
         "401":
@@ -625,9 +682,9 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: Show user interests
+      summary: Show  interests
       tags:
-      - Home
+      - Profile
   /like:
     get:
       consumes:
@@ -833,6 +890,39 @@ paths:
       summary: Get user profile details
       tags:
       - User Profile
+    patch:
+      consumes:
+      - application/json
+      description: Update user profile image
+      parameters:
+      - description: Images to upload
+        in: formData
+        name: images
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated user profile image
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad request or invalid data format
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user Image
+      tags:
+      - User Profile
     post:
       consumes:
       - multipart/form-data
@@ -916,37 +1006,15 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update user profile information including phone number, city, country,
-        bio, interests, and images
+      description: Update user profile information including name,phone number, city,
+        country, bio, interests
       parameters:
-      - description: Name
-        in: formData
-        name: name
-        type: string
-      - description: Phone_number
-        in: formData
-        name: phone_number
-        type: string
-      - description: City
-        in: formData
-        name: city
-        type: string
-      - description: Country
-        in: formData
-        name: country
-        type: string
-      - description: Biography
-        in: formData
-        name: bio
-        type: string
-      - description: Comma-separated list of interests
-        in: formData
-        name: interests
-        type: string
-      - description: Images to upload
-        in: formData
-        name: images
-        type: file
+      - description: user object in JSON format
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateUser'
       produces:
       - application/json
       responses:

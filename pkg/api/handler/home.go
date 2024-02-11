@@ -69,29 +69,4 @@ func (h *HomeHandler) Home(c *gin.Context) {
 	c.JSON(http.StatusOK, succRes)
 }
 
-// @Summary Show user interests
-// @Description Returns interests of the user
-// @Tags Home
-// @Security ApiKeyAuth
-// @Produce json
-// @Success 200 {object} response.Response{}
-// @Failure 401 {object} response.Response{}
-// @Failure 500 {object} response.Response{}
-// @Router /interests [get]
-func (h *HomeHandler) ShowInterests(c *gin.Context){
-	id, ok := c.Get("userId")
-	if !ok {
-		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthourized", nil, "error in getting id")
-		c.JSON(http.StatusUnauthorized, errRes)
-		return
-	}
 
-	res,err:=h.UseCase.Interests(id.(uint))
-	if err != nil {
-		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
-		c.JSON(http.StatusInternalServerError, errRes)
-		return
-	}
-	succRes := response.MakeResponse(http.StatusOK, "successfully showing interests of the user", res, nil)
-	c.JSON(http.StatusOK, succRes)
-}

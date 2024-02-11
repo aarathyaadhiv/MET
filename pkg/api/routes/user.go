@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler, authMiddleware middleInterface.AuthMiddleware, activityHandler handlerInterface.ActivityHandler, homeHandler handlerInterface.HomeHandler,chatHandler handlerInterface.ChatHandler,subscriptionHandler handlerInterface.SubscriptionHandler) {
+func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler, authMiddleware middleInterface.AuthMiddleware, activityHandler handlerInterface.ActivityHandler, homeHandler handlerInterface.HomeHandler, chatHandler handlerInterface.ChatHandler, subscriptionHandler handlerInterface.SubscriptionHandler) {
 	route.POST("/sendOtp", userHandler.SendOtp)
 	route.POST("/verify", userHandler.VerifyOtp)
 	route.Use(authMiddleware.UserAuthorization())
@@ -16,6 +16,7 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 			profile.POST("", userHandler.AddProfile)
 			profile.GET("", userHandler.GetProfile)
 			profile.PUT("", userHandler.UpdateUser)
+			profile.PATCH("", userHandler.UpdateImage)
 		}
 		like := route.Group("/like")
 		{
@@ -32,26 +33,27 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 		route.GET("/match", activityHandler.GetMatch)
 		route.POST("/report/:id", activityHandler.Report)
 		route.POST("/block/:id", activityHandler.BlockUser)
-		
-		chat:=route.Group("/chat")
+
+		chat := route.Group("/chat")
 		{
-			chat.GET("",chatHandler.GetChats)
-			chat.GET("/:chatId/message",chatHandler.GetMessages)
+			chat.GET("", chatHandler.GetChats)
+			chat.GET("/:chatId/message", chatHandler.GetMessages)
 			// chat.POST("/:chatId/message",chatHandler.SendMessage)
-			chat.PATCH("/:chatId/message",chatHandler.MakeMessageRead)
-			chat.GET("/:chatId",chatHandler.ChatPage)
+			chat.PATCH("/:chatId/message", chatHandler.MakeMessageRead)
+			chat.GET("/:chatId", chatHandler.ChatPage)
 		}
-		route.GET("/ws/:chatId",chatHandler.Chat)
-		subscription:=route.Group("subscription")
+		route.GET("/ws/:chatId", chatHandler.Chat)
+		subscription := route.Group("subscription")
 		{
-			subscription.GET("",subscriptionHandler.GetToUsers)
-			subscription.GET("/:subscriptionId",subscriptionHandler.GetByIdToUsers)
-			subscription.POST("/order/:subscriptionId",subscriptionHandler.AddOrder)
-			subscription.GET("/orders",subscriptionHandler.GetOrders)
-			subscription.GET("/payment/:orderId",subscriptionHandler.MakePayment)
-			subscription.GET("/payment-success",subscriptionHandler.VerifyPayment)
+			subscription.GET("", subscriptionHandler.GetToUsers)
+			subscription.GET("/:subscriptionId", subscriptionHandler.GetByIdToUsers)
+			subscription.POST("/order/:subscriptionId", subscriptionHandler.AddOrder)
+			subscription.GET("/orders", subscriptionHandler.GetOrders)
+			subscription.GET("/payment/:orderId", subscriptionHandler.MakePayment)
+			subscription.GET("/payment-success", subscriptionHandler.VerifyPayment)
 		}
-		route.GET("/interests",homeHandler.ShowInterests)
-		route.POST("/logout",userHandler.Logout)
+		route.GET("/interests", userHandler.Interests)
+		route.GET("/genders", userHandler.Genders)
+		route.POST("/logout", userHandler.Logout)
 	}
 }

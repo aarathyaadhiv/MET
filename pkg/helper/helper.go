@@ -41,8 +41,10 @@ func MinAndMaxAge(age int) (int, int) {
 func Gender(id uint) uint {
 	if id == 1 {
 		return id + 1
+	} else if id == 2 {
+		return id - 1
 	}
-	return id - 1
+	return id
 }
 
 func HaversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
@@ -98,9 +100,9 @@ func SearchForInterest(a []string, num string, beg int, end int) bool {
 		if a[mid] == num {
 			return true
 		} else if a[mid] < num {
-			beg=mid+1
+			beg = mid + 1
 		} else {
-			end=mid-1
+			end = mid - 1
 		}
 	}
 	return false

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/aarathyaadhiv/met/pkg/domain"
 	"github.com/aarathyaadhiv/met/pkg/helper"
 	interfaces "github.com/aarathyaadhiv/met/pkg/repository/interface"
 	useCaseInterface "github.com/aarathyaadhiv/met/pkg/usecase/interface"
@@ -100,10 +99,6 @@ func (h *HomeUseCase) HomePage(id uint, page, count int, interest bool, interest
 		return matchUsers, nil
 	}
 	return matchUsers[offset : offset+count], nil
-}
-
-func (h *HomeUseCase) Interests(id uint) ([]domain.Interests, error) {
-	return h.Repo.ShowInterests(id)
 }
 
 func (h *HomeUseCase) FilterByInterest(id uint, page, count int, interest string) ([]response.Home, error) {

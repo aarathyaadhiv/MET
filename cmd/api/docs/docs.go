@@ -755,6 +755,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/genders": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns available genders list",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Show genders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/home": {
             "get": {
                 "security": [
@@ -828,17 +865,31 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Returns interests of the user",
+                "description": "Returns interests of the user if value of user is true, otherwise gives all interests",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Home"
+                    "Profile"
                 ],
-                "summary": "Show user interests",
+                "summary": "Show  interests",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "filter for particular user (default: false)",
+                        "name": "user",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1186,7 +1237,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Update user profile information including phone number, city, country, bio, interests, and images",
+                "description": "Update user profile information including name,phone number, city, country, bio, interests",
                 "consumes": [
                     "application/json"
                 ],
@@ -1199,46 +1250,13 @@ const docTemplate = `{
                 "summary": "Update user profile",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Name",
-                        "name": "name",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Phone_number",
-                        "name": "phone_number",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "City",
-                        "name": "city",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Country",
-                        "name": "country",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Biography",
-                        "name": "bio",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Comma-separated list of interests",
-                        "name": "interests",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "Images to upload",
-                        "name": "images",
-                        "in": "formData"
+                        "description": "user object in JSON format",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateUser"
+                        }
                     }
                 ],
                 "responses": {
@@ -1374,6 +1392,58 @@ const docTemplate = `{
                         "description": "Unauthorized",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update user profile image",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Update user Image",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Images to upload",
+                        "name": "images",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated user profile image",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request or invalid data format",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
@@ -2009,6 +2079,40 @@ const docTemplate = `{
                 },
                 "see_like": {
                     "type": "boolean"
+                }
+            }
+        },
+        "models.UpdateUser": {
+            "type": "object",
+            "required": [
+                "bio",
+                "city",
+                "country",
+                "interests",
+                "name",
+                "ph_no"
+            ],
+            "properties": {
+                "bio": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "interests": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ph_no": {
+                    "type": "string"
                 }
             }
         },
