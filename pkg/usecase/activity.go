@@ -132,13 +132,13 @@ func (l *ActivityUseCase) GetLike(page, count int, userId uint) (response.ShowLi
 	if err != nil {
 		return response.ShowLike{}, errors.New("error in fetching data from database")
 	}
-	updatedResponse := make([]response.ShowUserDetails, 0)
+	updateResponse := make([]response.ShowUserDetails, 0)
 	for _, r := range res {
 		r.Interests, err = l.Lik.FetchInterests(r.Id)
 		if err != nil {
 			return response.ShowLike{}, errors.New("error in fetching data from database")
 		}
-		updatedResponse = append(updatedResponse, r)
+		updateResponse = append(updateResponse, r)
 	}
 
 	likeCount, err := l.Lik.GetLikeCount(userId)
@@ -151,7 +151,7 @@ func (l *ActivityUseCase) GetLike(page, count int, userId uint) (response.ShowLi
 		IsSubscribed: isSubscribed,
 		SeeLike:      seeLike,
 		LikeCount:    likeCount,
-		Likes:        updatedResponse,
+		Likes:        updateResponse,
 	}, nil
 
 }
