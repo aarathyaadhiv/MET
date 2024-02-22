@@ -9,7 +9,7 @@ type User struct {
 	Age            uint         `json:"age"`
 	PhNo           string       `json:"ph_no"`
 	GenderId       uint         `json:"gender_id"`
-	Gender         Gender       `json:"gender" gorm:"foreignKey:GenderId"`
+	Gender         Gender       `json:"gender" gorm:"foreignKey:GenderId;constraint:OnDelete:CASCADE"`
 	City           string       `json:"city"`
 	Country        string       `json:"country"`
 	Longitude      float64      `json:"longitude"`
@@ -19,7 +19,7 @@ type User struct {
 	LikeCount      int          `json:"like_count" gorm:"default:5"`
 	IsSubscribed   bool         `json:"is_subscribed" gorm:"default:false"`
 	SubscriptionId uint         `json:"subscription_id"`
-	Subscription   Subscription `json:"subscription" gorm:"foreignKey:SubscriptionId"`
+	Subscription   Subscription `json:"subscription" gorm:"foreignKey:SubscriptionId;constraint:OnDelete:CASCADE"`
 }
 
 type Gender struct {
@@ -30,9 +30,9 @@ type Gender struct {
 type UserInterests struct {
 	Id         uint      `json:"id" gorm:"primaryKey"`
 	UserId     uint      `json:"user_id"`
-	User       User      `json:"user" gorm:"foreignKey:UserId" `
+	User       User      `json:"user" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE" `
 	InterestId uint      `json:"interest_id"`
-	Interest   Interests `json:"interest" gorm:"foreignKey:InterestId"`
+	Interest   Interests `json:"interest" gorm:"foreignKey:InterestId;constraint:OnDelete:CASCADE"`
 }
 
 type Interests struct {
@@ -43,14 +43,14 @@ type Interests struct {
 type Images struct {
 	Id     uint   `json:"id" gorm:"primaryKey"`
 	UserId uint   `json:"user_id"`
-	User   User   `json:"user" gorm:"foreignKey:UserId" `
+	User   User   `json:"user" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE" `
 	Image  string `json:"image" `
 }
 
 type Preference struct {
 	Id          uint `json:"id" gorm:"primaryKey"`
 	UserId      uint `json:"user_id"`
-	User        User `json:"user" gorm:"foreignKey:UserId" `
+	User        User `json:"user" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE" `
 	MinAge      uint `json:"min_age"`
 	MaxAge      uint `json:"max_age"`
 	Gender      uint `json:"gender"`

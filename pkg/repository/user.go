@@ -57,7 +57,7 @@ func (u *UserRepository) UpdateUser(id uint, profile models.ProfileSave) (uint, 
 }
 
 func (u *UserRepository) UpdateUserDetails(id uint, user models.UpdateUserDetails) error {
-	if err := u.DB.Exec(`UPDATE users SET name=?,ph_no=?,city=?,country=?,bio=? WHERE id=?`, user.Name, user.PhNo, user.City, user.Country, user.Bio, id).Error; err != nil {
+	if err := u.DB.Exec(`UPDATE users SET name=?,city=?,country=?,bio=? WHERE id=?`, user.Name, user.City, user.Country, user.Bio, id).Error; err != nil {
 		return err
 	}
 	return nil
@@ -69,6 +69,13 @@ func (u *UserRepository) UpdateLocation(id uint, location models.UpdateLocation)
 		return 0, err
 	}
 	return userId, nil
+}
+
+func (u *UserRepository) UpdatePhNo(id uint, phNo string) error {
+	if err := u.DB.Exec(`UPDATE users SET ph_no=? WHERE id=?`, phNo, id).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *UserRepository) IsInterestExist(id, interest uint) (bool, error) {
@@ -117,7 +124,7 @@ func (u *UserRepository) DeleteImage(id uint) error {
 
 func (u *UserRepository) ShowProfile(id uint) (response.UserDetails, error) {
 	var user response.UserDetails
-	if err := u.DB.Raw(`SELECT u.id,u.name,TO_CHAR(DATE(u.dob), 'YYYY-FMMonth-DD') AS dob,u.age,u.ph_no,g.name as gender,u.city,u.country,u.longitude,u.lattitude,u.bio from users as u JOIN genders as g ON u.gender_id=g.id WHERE u.id=?`, id).Scan(&user).Error; err != nil {
+	if err := u.DB.Raw(`SELECT u.id,u.name,TO_CHAR(DATE(u.dob), 'YYYY FMMonth DD') AS dob,u.age,u.ph_no,g.name as gender,u.city,u.country,u.longitude,u.lattitude,u.bio from users as u JOIN genders as g ON u.gender_id=g.id WHERE u.id=?`, id).Scan(&user).Error; err != nil {
 		return response.UserDetails{}, err
 	}
 	return user, nil
@@ -187,18 +194,26 @@ func (u *UserRepository) ShowInterests(id uint) ([]domain.Interests, error) {
 	return interests, nil
 }
 
-func (u *UserRepository) Interests()([]domain.Interests,error){
+func (u *UserRepository) Interests() ([]domain.Interests, error) {
 	var interests []domain.Interests
-	if err:=u.DB.Raw(`SELECT * FROM interests`).Scan(&interests).Error;err!=nil{
-		return nil,err
+	if err := u.DB.Raw(`SELECT * FROM interests`).Scan(&interests).Error; err != nil {
+		return nil, err
 	}
-	return interests,nil
+	return interests, nil
 }
 
-func (u *UserRepository) Gender()([]domain.Gender,error){
+func (u *UserRepository) Gender() ([]domain.Gender, error) {
 	var gender []domain.Gender
-	if err:=u.DB.Raw(`SELECT * FROM genders`).Scan(&gender).Error;err!=nil{
-		return nil,err
+	if err := u.DB.Raw(`SELECT * FROM genders`).Scan(&gender).Error; err != nil {
+		return nil, err
 	}
-	return gender,nil
+	return gender, nil
+}
+
+func (u *UserRepository) DeleteUser(userId uint) (uint, error) {
+	var id uint
+	if err := u.DB.Raw(`DELETE FROM users WHERE id=? RETURNING id`, userId).Scan(&id).Error; err != nil {
+		return 0, err
+	}
+	return id, nil
 }

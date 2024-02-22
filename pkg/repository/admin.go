@@ -40,12 +40,12 @@ func (a *AdminRepository) FetchAdmin(email string) (domain.Admin, error) {
 	return admin, nil
 }
 
-func (a *AdminRepository) IsUserExist(id uint)(bool,error){
+func (a *AdminRepository) IsUserExist(id uint) (bool, error) {
 	var count int
-	if err:=a.DB.Raw(`SELECT COUNT(*) FROM users WHERE id=?`,id).Scan(&count).Error;err!=nil{
-		return false,err
+	if err := a.DB.Raw(`SELECT COUNT(*) FROM users WHERE id=?`, id).Scan(&count).Error; err != nil {
+		return false, err
 	}
-	return count>0,nil
+	return count > 0, nil
 }
 
 func (a *AdminRepository) BlockUser(id uint) (uint, error) {
@@ -87,7 +87,7 @@ func (a *AdminRepository) GetSingleUser(id uint) (response.UserDetailsToAdmin, e
 	if err := a.DB.Raw(`SELECT
     u.id,
     u.name,
-    u.dob,
+    TO_CHAR(DATE(u.dob),'YYYY FMMonth DD') AS dob,
     u.age,
     u.ph_no,
     g.name AS gender,
@@ -119,26 +119,26 @@ WHERE
 	return user, nil
 }
 
-func (a *AdminRepository) ReportedUsers()([]response.ReportedUsers,error){
+func (a *AdminRepository) ReportedUsers() ([]response.ReportedUsers, error) {
 	var reported []response.ReportedUsers
-	if err:=a.DB.Raw(`SELECT r.reported_id as id,u.name,COUNT(r.reported_id) as report_count FROM reported_users AS r JOIN users AS u ON u.id=r.reported_id GROUP BY r.reported_id,u.name`).Scan(&reported).Error;err!=nil{
-		return nil,err
+	if err := a.DB.Raw(`SELECT r.reported_id as id,u.name,COUNT(r.reported_id) as report_count FROM reported_users AS r JOIN users AS u ON u.id=r.reported_id GROUP BY r.reported_id,u.name`).Scan(&reported).Error; err != nil {
+		return nil, err
 	}
-	return reported,nil
+	return reported, nil
 }
 
-func (a *AdminRepository) IsReportedUser(id uint)(bool,error){
+func (a *AdminRepository) IsReportedUser(id uint) (bool, error) {
 	var count int
-	if err:=a.DB.Raw(`SELECT COUNT(*) FROM reported_users WHERE reported_id=?`,id).Scan(&count).Error;err!=nil{
-		return false,err
+	if err := a.DB.Raw(`SELECT COUNT(*) FROM reported_users WHERE reported_id=?`, id).Scan(&count).Error; err != nil {
+		return false, err
 	}
-	return count>0,nil
+	return count > 0, nil
 }
 
-func (a *AdminRepository) ReportedUser(reportId uint)(response.ReportedUser,error){
+func (a *AdminRepository) ReportedUser(reportId uint) (response.ReportedUser, error) {
 	var report response.ReportedUser
-	if err:=a.DB.Raw(`SELECT r.reported_id as id,u1.name,r.user_id as reported_by_id,u2.name as reported_by_name,r.message,r.time FROM reported_users as r JOIN users AS u1 ON r.reported_id=u1.id JOIN users u2 ON r.user_id=u2.id WHERE r.reported_id=?`,reportId).Scan(&report).Error;err!=nil{
-		return response.ReportedUser{},err
+	if err := a.DB.Raw(`SELECT r.reported_id as id,u1.name,r.user_id as reported_by_id,u2.name as reported_by_name,r.message,r.time FROM reported_users as r JOIN users AS u1 ON r.reported_id=u1.id JOIN users u2 ON r.user_id=u2.id WHERE r.reported_id=?`, reportId).Scan(&report).Error; err != nil {
+		return response.ReportedUser{}, err
 	}
-	return report,nil
+	return report, nil
 }

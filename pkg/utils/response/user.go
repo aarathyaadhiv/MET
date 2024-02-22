@@ -5,6 +5,10 @@ type Token struct {
 	RefreshToken string
 }
 
+type SendOtp struct {
+	PhNo string
+}
+
 type Id struct {
 	Id uint
 }

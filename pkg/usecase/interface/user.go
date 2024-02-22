@@ -9,7 +9,7 @@ import (
 )
 
 type UserUseCase interface {
-	SendOtp(phNo string) error
+	SendOtp(phNo string) (response.SendOtp, error)
 	VerifyOtp(otp models.OtpVerify) (bool, response.Token, error)
 	AddProfile(profile models.Profile, id uint) (uint, error)
 	ShowProfile(id uint) (response.Profile, error)
@@ -18,5 +18,7 @@ type UserUseCase interface {
 	UpdatePreference(id uint, preference models.Preference) (response.Id, error)
 	GetPreference(id uint) (models.Preference, error)
 	Interests(id uint, user bool) ([]domain.Interests, error)
-	Gender()([]domain.Gender,error)
+	Gender() ([]domain.Gender, error)
+	DeleteAccount(userId uint) (response.Id, error)
+	VerifyOTPtoUpdatePhNo(otp models.OtpVerify, userId uint) (response.SendOtp, error)
 }

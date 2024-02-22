@@ -16,7 +16,10 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 			profile.POST("", userHandler.AddProfile)
 			profile.GET("", userHandler.GetProfile)
 			profile.PUT("", userHandler.UpdateUser)
+			profile.DELETE("",userHandler.DeleteAccount)
 			profile.PATCH("", userHandler.UpdateImage)
+			profile.POST("/phNo/sendOtp",userHandler.UpdatePhNoSendOTP)
+			profile.PATCH("/phNo/verify",userHandler.VerifyOTPtoUpdatePhNo)
 		}
 		like := route.Group("/like")
 		{
@@ -55,5 +58,6 @@ func UserRoutes(route *gin.RouterGroup, userHandler handlerInterface.UserHandler
 		route.GET("/interests", userHandler.Interests)
 		route.GET("/genders", userHandler.Genders)
 		route.POST("/logout", userHandler.Logout)
+		
 	}
 }

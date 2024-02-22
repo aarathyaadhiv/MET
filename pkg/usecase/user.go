@@ -17,31 +17,33 @@ import (
 
 type UserUseCase struct {
 	Repo   interfaces.UserRepository
+	chat   interfaces.ChatRepository
 	Config config.Config
 }
 
-func NewUserUseCase(repo interfaces.UserRepository, config config.Config) useCaseInterface.UserUseCase {
+func NewUserUseCase(repo interfaces.UserRepository, config config.Config, chat interfaces.ChatRepository) useCaseInterface.UserUseCase {
 	return &UserUseCase{Repo: repo,
-		Config: config}
+		Config: config,
+		chat:   chat}
 }
 
-func (u *UserUseCase) SendOtp(phNo string) error {
+func (u *UserUseCase) SendOtp(phNo string) (response.SendOtp,error) {
 
 	regex := regexp.MustCompile(`^\d{10}$`)
 	if !regex.MatchString(phNo) {
-		return errors.New("the given phone number is not in the correct format")
+		return response.SendOtp{}, errors.New("the given phone number is not in the correct format")
 	}
 	exist, err := u.Repo.IsUserExist(phNo)
 	if err != nil {
-		return err
+		return response.SendOtp{}, err
 	}
 	if exist {
 		block, err := u.Repo.IsUserBlocked(phNo)
 		if err != nil {
-			return err
+			return response.SendOtp{}, err
 		}
 		if block {
-			return errors.New("this number is blocked for this app")
+			return response.SendOtp{}, errors.New("this number is blocked for this app")
 		}
 	}
 	phone := "+91" + phNo
@@ -49,9 +51,11 @@ func (u *UserUseCase) SendOtp(phNo string) error {
 	_, err = helper.SendOtp(phone, u.Config.TwilioServicesId)
 	if err != nil {
 		fmt.Println("error here", err)
-		return errors.New("error in sending otp")
+		return response.SendOtp{}, errors.New("error in sending otp")
 	}
-	return nil
+	return response.SendOtp{
+		PhNo: phNo,
+	}, nil
 }
 
 func (u *UserUseCase) VerifyOtp(otp models.OtpVerify) (bool, response.Token, error) {
@@ -179,7 +183,6 @@ func (u *UserUseCase) ShowProfile(id uint) (response.Profile, error) {
 func (u *UserUseCase) UpdateUser(user models.UpdateUser, id uint) (response.Id, error) {
 	users := models.UpdateUserDetails{
 		Name:    user.Name,
-		PhNo:    user.PhNo,
 		City:    user.City,
 		Country: user.Country,
 		Bio:     user.Bio,
@@ -245,17 +248,51 @@ func (u *UserUseCase) GetPreference(id uint) (models.Preference, error) {
 	return res, nil
 }
 
-func (u *UserUseCase) Interests(id uint,user bool) ([]domain.Interests, error) {
-	if user{
+func (u *UserUseCase) Interests(id uint, user bool) ([]domain.Interests, error) {
+	if user {
 		return u.Repo.ShowInterests(id)
 	}
 	return u.Repo.Interests()
 }
 
-func (u *UserUseCase) Gender()([]domain.Gender,error){
-	res,err:=u.Repo.Gender()
-	if err!=nil{
-		return nil,errors.New("error in fetching gender details")
+func (u *UserUseCase) Gender() ([]domain.Gender, error) {
+	res, err := u.Repo.Gender()
+	if err != nil {
+		return nil, errors.New("error in fetching gender details")
 	}
-	return res,nil
+	return res, nil
+}
+
+func (u *UserUseCase) DeleteAccount(userId uint) (response.Id, error) {
+	res, err := u.Repo.DeleteUser(userId)
+	if err != nil {
+		return response.Id{}, errors.New("error in fetching data")
+	}
+	err = u.chat.DeleteChatsAndMessagesByUserID(res)
+	if err != nil {
+		return response.Id{}, errors.New("error in deleting data in chat")
+	}
+	return response.Id{Id: res}, nil
+}
+
+
+
+func (u *UserUseCase) VerifyOTPtoUpdatePhNo(otp models.OtpVerify, userId uint) (response.SendOtp, error) {
+	regex := regexp.MustCompile(`^\d{10}$`)
+	if !regex.MatchString(otp.PhNo) {
+		return response.SendOtp{}, errors.New("the given phone number is not in the correct format")
+	}
+	helper.TwillioSetup(u.Config.TwilioAccountSID, u.Config.TwilioAuthToken)
+	err := helper.ValidateOtp(otp, u.Config.TwilioServicesId)
+	if err != nil {
+		return response.SendOtp{}, errors.New("otp verification failed")
+	}
+	err = u.Repo.UpdatePhNo(userId, otp.PhNo)
+	if err != nil {
+		return response.SendOtp{}, errors.New("error in updating phno")
+	}
+	return response.SendOtp{
+		PhNo: otp.PhNo,
+	}, nil
+
 }

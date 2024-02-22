@@ -42,7 +42,7 @@ func (l *ActivityRepository) Unlike(likeId, userId uint) (response.Like, error) 
 func (l *ActivityRepository) GetLike(page, count int, userId uint) ([]response.ShowUserDetails, error) {
 	var like []response.ShowUserDetails
 	offset := (page - 1) * count
-	if err := l.DB.Raw(`SELECT l.user_id as id,u.name,u.dob,u.age,g.name as gender,u.city,u.country,u.bio,(
+	if err := l.DB.Raw(`SELECT l.user_id as id,u.name,TO_CHAR(DATE(u.dob),'YYYY FMMonth DD') AS dob,u.age,g.name as gender,u.city,u.country,u.bio,(
         SELECT STRING_AGG(i.image, ', ' ORDER BY i.image)
         FROM images AS i
         WHERE i.user_id = l.user_id
@@ -50,6 +50,22 @@ func (l *ActivityRepository) GetLike(page, count int, userId uint) ([]response.S
 		return nil, err
 	}
 	return like, nil
+}
+
+func (l *ActivityRepository) GetLikeCount(userId uint)(int,error){
+	var count int
+	if err:=l.DB.Raw(`SELECT COUNT(*) FROM likes WHERE liked_id=?`,userId).Scan(&count).Error;err!=nil{
+		return 0,err
+	}
+	return count,nil
+}
+
+func (a *ActivityRepository) FetchInterests(id uint) ([]string, error) {
+	var interests []string
+	if err := a.DB.Raw(`SELECT i.interest FROM user_interests as u JOIN interests as i ON u.interest_id=i.id WHERE u.user_id=?`, id).Scan(&interests).Error; err != nil {
+		return nil, err
+	}
+	return interests, nil
 }
 
 func (l *ActivityRepository) IsLikeExist(userId, likedId uint) (bool, error) {
@@ -98,7 +114,7 @@ func (l *ActivityRepository) Match(userId, matchId uint) error {
 func (l *ActivityRepository) GetMatch(page, count int, userId uint) ([]response.ShowUserDetails, error) {
 	var match []response.ShowUserDetails
 	offset := (page - 1) * count
-	if err := l.DB.Raw(`SELECT m.match_id as id,u.name,u.dob,u.age,g.name as gender,u.city,u.country,u.bio,(
+	if err := l.DB.Raw(`SELECT m.match_id as id,u.name,TO_CHAR(DATE(u.dob),'YYYY FMMonth DD') AS dob,u.age,g.name as gender,u.city,u.country,u.bio,(
         SELECT STRING_AGG(i.image, ', ' ORDER BY i.image)
         FROM images AS i
         WHERE i.user_id = m.match_id

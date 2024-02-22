@@ -23,6 +23,7 @@ type UserRepository interface {
 	FetchInterests(id uint) ([]string, error)
 	IsBlocked(id uint) (bool, error)
 	UpdateLocation(id uint, location models.UpdateLocation) (uint, error)
+	UpdatePhNo(id uint,phNo string)error
 	UpdateUserDetails(id uint, user models.UpdateUserDetails) error
 	AddPreference(id uint, preference models.Preference) error
 	UpdatePreference(id uint, preference models.Preference) (uint, error)
@@ -31,4 +32,5 @@ type UserRepository interface {
 	ShowInterests(id uint) ([]domain.Interests, error)
 	Interests() ([]domain.Interests, error)
 	Gender() ([]domain.Gender, error)
+	DeleteUser(userId uint)(uint,error)
 }

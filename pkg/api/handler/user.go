@@ -40,13 +40,13 @@ func (u *UserHandler) SendOtp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	err := u.UseCase.SendOtp(sendOtp.PhNo)
+	res,err := u.UseCase.SendOtp(sendOtp.PhNo)
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusInternalServerError, "error in sending otp", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errRes)
 		return
 	}
-	succRes := response.MakeResponse(http.StatusOK, "successfully sent otp", nil, nil)
+	succRes := response.MakeResponse(http.StatusOK, "successfully sent otp", res, nil)
 	c.JSON(http.StatusOK, succRes)
 }
 
@@ -394,7 +394,7 @@ func (u *UserHandler) Interests(c *gin.Context) {
 }
 
 // @Summary Show genders
-// @Description Returns available genders list 
+// @Description Returns available genders list
 // @Tags Profile
 // @Security ApiKeyAuth
 // @Produce json
@@ -421,4 +421,94 @@ func (u *UserHandler) Genders(c *gin.Context) {
 func (u *UserHandler) Logout(c *gin.Context) {
 	c.SetCookie("accessToken", "", -1, "", "", false, true)
 	c.SetCookie("refreshToken", "", -1, "", "", false, true)
+}
+
+// @Summary Delete user account
+// @Description Deletes the user account associated with the authenticated user
+// @Tags User Profile
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{}
+// @Failure 401 {object} response.Response{}
+// @Failure 500 {object} response.Response{}
+// @Router /profile [delete]
+func (u *UserHandler) DeleteAccount(c *gin.Context) {
+	id, ok := c.Get("userId")
+	if !ok {
+		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, "error in retrieving user id")
+		c.JSON(http.StatusUnauthorized, errRes)
+		return
+	}
+	res, err := u.UseCase.DeleteAccount(id.(uint))
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	u.Logout(c)
+	succRes := response.MakeResponse(http.StatusOK, "successfully deleted account", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}
+
+// @Summary Send OTP to Update PhNo 
+// @Description sending otp to the given phone number to replace the old number with the given number
+// @Tags User Profile
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param  sendOtp body models.OtpRequest true "sendOtp"
+// @Success 200 {object} response.Response{}
+// @Failure 500 {object} response.Response{}
+// @Router /profile/phNo/sendOtp [post]
+func (u *UserHandler) UpdatePhNoSendOTP(c *gin.Context) {
+	var sendOtp models.OtpRequest
+	if err := c.BindJSON(&sendOtp); err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "data provided is not in the correct format", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	res, err := u.UseCase.SendOtp(sendOtp.PhNo)
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "error in sending otp", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	succRes := response.MakeResponse(http.StatusOK, "successfully sent otp", res, nil)
+	c.JSON(http.StatusOK, succRes)
+}
+
+// @Summary Verify OTP to Update PhNo
+// @Description Verify OTP for updating user saved phNo to given phNo
+// @Tags User Profile
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param request body models.OtpVerify true "OTP verification details"
+// @Success 200 {object} response.Response{} 
+// @Failure 401 {object} response.Response{}
+// @Failure 400 {object} response.Response{} 
+// @Failure 500 {object} response.Response{} 
+// @Router /profile/phNo/verify [patch]
+func (u *UserHandler) VerifyOTPtoUpdatePhNo(c *gin.Context) {
+	id, ok := c.Get("userId")
+	if !ok {
+		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, "error in retrieving user id")
+		c.JSON(http.StatusUnauthorized, errRes)
+		return
+	}
+	var verify models.OtpVerify
+	if err := c.BindJSON(&verify); err != nil {
+		errRes := response.MakeResponse(http.StatusBadRequest, "data is not in required format", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	res, err := u.UseCase.VerifyOTPtoUpdatePhNo(verify, id.(uint))
+	if err != nil {
+		errRes := response.MakeResponse(http.StatusInternalServerError, "error in verifying otp", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+
+	succRes := response.MakeResponse(http.StatusOK, "successfully updated PhNo", res, nil)
+	c.JSON(http.StatusCreated, succRes)
 }

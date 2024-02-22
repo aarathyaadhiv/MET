@@ -14,4 +14,7 @@ type UserHandler interface {
 	Interests(c *gin.Context)
 	Genders(c *gin.Context)
 	Logout(c *gin.Context)
+	DeleteAccount(c *gin.Context)
+	UpdatePhNoSendOTP(c *gin.Context)
+	VerifyOTPtoUpdatePhNo(c *gin.Context)
 }

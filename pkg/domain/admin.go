@@ -24,9 +24,9 @@ type Subscription struct {
 type SubscriptionOrder struct {
 	Id             uint         `json:"id" gorm:"primaryKey"`
 	SubscriptionId uint         `json:"subscription_id"`
-	Subscription   Subscription `json:"subscription" gorm:"foreignKey:SubscriptionId"`
+	Subscription   Subscription `json:"subscription" gorm:"foreignKey:SubscriptionId;constraint:OnDelete:CASCADE"`
 	UserId         uint         `json:"user_id"`
-	User           User         `json:"user" gorm:"foreignKey:UserId"`
+	User           User         `json:"user" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
 	SubscribeDate  time.Time    `json:"subscribe_date"`
 	Status         string       `json:"status"`
 	PaymentId      string       `json:"payment_id"`

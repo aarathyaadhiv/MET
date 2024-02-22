@@ -24,18 +24,18 @@ func InitializeAPI(c config.Config) (*server.ServerHTTP, error) {
 		return nil, err
 	}
 	userRepository := repository.NewUserRepository(gormDB)
-	userUseCase := usecase.NewUserUseCase(userRepository, c)
+	database, err := db.ConnectMongo(c)
+	if err != nil {
+		return nil, err
+	}
+	chatRepository := repository.NewChatRepository(database)
+	userUseCase := usecase.NewUserUseCase(userRepository, c, chatRepository)
 	userHandler := handler.NewUserHandler(userUseCase)
 	adminRepository := repository.NewAdminRepository(gormDB)
 	adminUseCase := usecase.NewAdminUseCase(adminRepository)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
 	authMiddleware := middleware.NewAuthMiddleware(userRepository)
 	activityRepository := repository.NewActivityRepository(gormDB)
-	database, err := db.ConnectMongo(c)
-	if err != nil {
-		return nil, err
-	}
-	chatRepository := repository.NewChatRepository(database)
 	activityUseCase := usecase.NewActivityUseCase(activityRepository, chatRepository)
 	activityHandler := handler.NewActivityHandler(activityUseCase)
 	homeRepository := repository.NewHomeRepository(gormDB)

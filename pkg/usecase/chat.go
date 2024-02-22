@@ -74,6 +74,10 @@ func (c *ChatUseCase) SaveMessage(chatId primitive.ObjectID, senderId uint, mess
 	if err != nil {
 		return primitive.ObjectID{}, err
 	}
+	err=c.Repo.UpdateLastMessageAndTime(chatId,message,messages.Timestamp)
+	if err != nil {
+		return primitive.ObjectID{}, err
+	}
 	return res, nil
 }
 

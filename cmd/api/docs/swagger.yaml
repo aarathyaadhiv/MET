@@ -76,15 +76,12 @@ definitions:
         type: array
       name:
         type: string
-      ph_no:
-        type: string
     required:
     - bio
     - city
     - country
     - interests
     - name
-    - ph_no
     type: object
   response.Response:
     properties:
@@ -866,6 +863,28 @@ paths:
       tags:
       - User Preferences
   /profile:
+    delete:
+      description: Deletes the user account associated with the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete user account
+      tags:
+      - User Profile
     get:
       consumes:
       - application/json
@@ -1037,6 +1056,71 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update user profile
+      tags:
+      - User Profile
+  /profile/phNo/sendOtp:
+    post:
+      consumes:
+      - application/json
+      description: sending otp to the given phone number to replace the old number
+        with the given number
+      parameters:
+      - description: sendOtp
+        in: body
+        name: sendOtp
+        required: true
+        schema:
+          $ref: '#/definitions/models.OtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Send OTP to Update PhNo
+      tags:
+      - User Profile
+  /profile/phNo/verify:
+    patch:
+      consumes:
+      - application/json
+      description: Verify OTP for updating user saved phNo to given phNo
+      parameters:
+      - description: OTP verification details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.OtpVerify'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Verify OTP to Update PhNo
       tags:
       - User Profile
   /report/{id}:

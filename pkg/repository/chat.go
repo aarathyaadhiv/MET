@@ -114,6 +114,16 @@ func (c *ChatRepository) SaveMessage(message domain.Messages) (primitive.ObjectI
 	return id.InsertedID.(primitive.ObjectID), nil
 }
 
+func (c *ChatRepository) UpdateLastMessageAndTime(chatId primitive.ObjectID,lastMessage string,time time.Time)error{
+	filter:=bson.M{"_id":chatId}
+	update:=bson.M{"$set":bson.M{"last_message":lastMessage,"last_message_time":time}}
+	_,err:=c.ChatCollection.UpdateOne(context.TODO(),filter,update)
+	if err!=nil{
+		return err
+	}
+	return nil
+}
+
 func (c *ChatRepository) ReadMessage(chatId primitive.ObjectID, senderId uint) (int64, error) {
 
 	filter := bson.M{"chat_id": chatId, "sender_id": senderId, "seen": false}
@@ -140,4 +150,37 @@ func (c *ChatRepository) FetchRecipient(chatId primitive.ObjectID, userId uint) 
 
 	return chat.Users[0], nil
 
+}
+
+func (c *ChatRepository) DeleteChatsAndMessagesByUserID(userID uint) error {
+    // Find chats associated with the user ID
+    var chatIDs []primitive.ObjectID
+    filter := bson.M{"users": userID}
+    cursor, err := c.ChatCollection.Find(context.Background(), filter)
+    if err != nil {
+        return err
+    }
+    defer cursor.Close(context.Background())
+
+    for cursor.Next(context.Background()) {
+        var chat domain.Chats
+        if err := cursor.Decode(&chat); err != nil {
+            return err
+        }
+        chatIDs = append(chatIDs, chat.ID)
+    }
+
+    // Delete messages in chats associated with the user ID
+    _, err = c.MessageCollection.DeleteMany(context.Background(), bson.M{"chat_id": bson.M{"$in": chatIDs}})
+    if err != nil {
+        return err
+    }
+
+    // Delete chats associated with the user ID
+    _, err = c.ChatCollection.DeleteMany(context.Background(), filter)
+    if err != nil {
+        return err
+    }
+
+    return nil
 }

@@ -9,6 +9,8 @@ type ActivityRepository interface{
 	Like(likedId,userId uint)(response.Like,error)
 	Unlike(likeId,userId uint)(response.Like,error)
 	GetLike(page,count int,userId uint)([]response.ShowUserDetails,error)
+	GetLikeCount(userId uint)(int,error)
+	FetchInterests(id uint) ([]string, error)
 	IsLikeExist(userId,likedId uint)(bool,error)
 	LikeCount(userId uint)(int,error)
 	UpdateLikeCount(userId uint,count int)error

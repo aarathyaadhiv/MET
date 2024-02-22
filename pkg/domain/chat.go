@@ -7,9 +7,11 @@ import (
 )
 
 type Chats struct {
-	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	Users     []uint             `json:"users" bson:"users"`
-	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
+	ID              primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Users           []uint             `json:"users" bson:"users"`
+	CreatedAt       time.Time          `json:"created_at" bson:"created_at"`
+	LastMessage     string             `json:"last_message" bson:"last_message"`
+	LastMessageTime time.Time          `json:"last_message_time" bson:"last_message_time"`
 }
 
 type Messages struct {
