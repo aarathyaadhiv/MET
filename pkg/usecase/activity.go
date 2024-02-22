@@ -132,10 +132,15 @@ func (l *ActivityUseCase) GetLike(page, count int, userId uint) (response.ShowLi
 	if err != nil {
 		return response.ShowLike{}, errors.New("error in fetching data from database")
 	}
-	for _,r:=range res{
-		r.Interests,_=l.Lik.FetchInterests(r.Id)
+	updatedResponse := make([]response.ShowUserDetails, 0)
+	for _, r := range res {
+		r.Interests, err = l.Lik.FetchInterests(r.Id)
+		if err != nil {
+			return response.ShowLike{}, errors.New("error in fetching data from database")
+		}
+		updatedResponse = append(updatedResponse, r)
 	}
-	
+
 	likeCount, err := l.Lik.GetLikeCount(userId)
 	if err != nil {
 		return response.ShowLike{}, errors.New("error in fetching data from database")
@@ -146,7 +151,7 @@ func (l *ActivityUseCase) GetLike(page, count int, userId uint) (response.ShowLi
 		IsSubscribed: isSubscribed,
 		SeeLike:      seeLike,
 		LikeCount:    likeCount,
-		Likes:        res,
+		Likes:        updatedResponse,
 	}, nil
 
 }
@@ -171,10 +176,17 @@ func (l *ActivityUseCase) GetMatch(userId uint, page, count int) (response.ShowM
 	if err != nil {
 		return response.ShowMatch{}, errors.New("error in fetching data")
 	}
-
+	updatedResponse := make([]response.ShowUserDetails, 0)
+	for _, v := range res {
+		v.Interests, err = l.Lik.FetchInterests(v.Id)
+		if err != nil {
+			return response.ShowMatch{}, errors.New("error in fetching data")
+		}
+		updatedResponse = append(updatedResponse, v)
+	}
 	return response.ShowMatch{
 		UserId:  userId,
-		Matches: res,
+		Matches: updatedResponse,
 	}, nil
 }
 
