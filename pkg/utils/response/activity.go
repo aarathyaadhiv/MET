@@ -1,22 +1,20 @@
 package response
 
-import "time"
-
 type Like struct {
 	UserId  uint `json:"user_id"`
 	LikedId uint `json:"liked_id"`
 }
 type ShowUserDetails struct {
-	Id        uint      `json:"id"`
-	Name      string    `json:"name"`
-	Dob       time.Time `json:"dob"`
-	Age       int       `json:"age"`
-	Gender    string    `json:"gender"`
-	City      string    `json:"city"`
-	Country   string    `json:"country"`
-	Bio       string    `json:"bio"`
-	Image     string    `json:"image"`
-	Interests []string  `json:"interests"`
+	Id        uint     `json:"id"`
+	Name      string   `json:"name"`
+	Dob       string   `json:"dob"`
+	Age       int      `json:"age"`
+	Gender    string   `json:"gender"`
+	City      string   `json:"city"`
+	Country   string   `json:"country"`
+	Bio       string   `json:"bio"`
+	Image     string   `json:"image"`
+	Interests []string `json:"interests"`
 }
 type ShowLike struct {
 	UserId       uint              `json:"user_id"`

@@ -16,7 +16,7 @@ type User struct {
 type UserDetailsToAdmin struct {
 	Id        uint      `json:"id"`
 	Name      string    `json:"name"`
-	Dob       time.Time `json:"dob"`
+	Dob       string `json:"dob"`
 	Age       int       `json:"age"`
 	PhNo      string    `json:"ph_no"`
 	Gender    string    `json:"gender"`

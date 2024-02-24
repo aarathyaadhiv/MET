@@ -117,33 +117,33 @@ func (l *ActivityUseCase) Unlike(likeId, userId uint) (response.Like, error) {
 func (l *ActivityUseCase) GetLike(page, count int, userId uint) (response.ShowLike, error) {
 	isSubscribed, err := l.Lik.IsSubscribed(userId)
 	if err != nil {
-		return response.ShowLike{}, errors.New("error in fetching data from database")
+		return response.ShowLike{}, errors.New("error in checking subscribtion data from database")
 	}
 	seeLike := false
 	if isSubscribed {
 		seeLike, err = l.Lik.SeeLike(userId)
 		if err != nil {
-			return response.ShowLike{}, errors.New("error in fetching data from database")
+			return response.ShowLike{}, errors.New("error in checking seelike  from database")
 		}
 
 	}
 
 	res, err := l.Lik.GetLike(page, count, userId)
 	if err != nil {
-		return response.ShowLike{}, errors.New("error in fetching data from database")
+		return response.ShowLike{}, errors.New("error in fetching  data from database")
 	}
 	updateResponse := make([]response.ShowUserDetails, 0)
 	for _, r := range res {
 		r.Interests, err = l.Lik.FetchInterests(r.Id)
 		if err != nil {
-			return response.ShowLike{}, errors.New("error in fetching data from database")
+			return response.ShowLike{}, errors.New("error in fetching interests from database")
 		}
 		updateResponse = append(updateResponse, r)
 	}
 
 	likeCount, err := l.Lik.GetLikeCount(userId)
 	if err != nil {
-		return response.ShowLike{}, errors.New("error in fetching data from database")
+		return response.ShowLike{}, errors.New("error in fetching count from database")
 	}
 
 	return response.ShowLike{
@@ -180,7 +180,7 @@ func (l *ActivityUseCase) GetMatch(userId uint, page, count int) (response.ShowM
 	for _, v := range res {
 		v.Interests, err = l.Lik.FetchInterests(v.Id)
 		if err != nil {
-			return response.ShowMatch{}, errors.New("error in fetching data")
+			return response.ShowMatch{}, errors.New("error in fetching interests")
 		}
 		updatedResponse = append(updatedResponse, v)
 	}
