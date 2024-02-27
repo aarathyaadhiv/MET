@@ -281,6 +281,7 @@ func (s *SubscriptionHandler) MakePayment(c *gin.Context) {
 	}
 	succRes := response.MakeResponse(http.StatusOK, "successfully showing details for order in razorpay", res, nil)
 	c.JSON(http.StatusOK, succRes)
+	//now only giving payment details for frontend
 	//c.HTML(http.StatusOK,"payment.html",res)
 }
 
