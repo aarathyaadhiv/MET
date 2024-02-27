@@ -266,20 +266,22 @@ func (s *SubscriptionHandler) AddOrder(c *gin.Context) {
 // @Failure 400 {object} response.Response{} "Invalid input or conversion failure"
 // @Failure 500 {object} response.Response{} "Internal server error"
 // @Router /subscription/payment/{orderId} [get]
-func (s *SubscriptionHandler) MakePayment(c *gin.Context){
+func (s *SubscriptionHandler) MakePayment(c *gin.Context) {
 	orderId, err := strconv.Atoi(c.Param("orderId"))
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusBadRequest, "string conversion failed", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	res,err:=s.Usecase.MakePayment(uint(orderId))
+	res, err := s.Usecase.MakePayment(uint(orderId))
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errRes)
 		return
 	}
-	c.HTML(http.StatusOK,"payment.html",res)
+	succRes := response.MakeResponse(http.StatusOK, "successfully showing details for order in razorpay", res, nil)
+	c.JSON(http.StatusOK, succRes)
+	//c.HTML(http.StatusOK,"payment.html",res)
 }
 
 // @Summary Verify a payment for a subscription
@@ -294,18 +296,18 @@ func (s *SubscriptionHandler) MakePayment(c *gin.Context){
 // @Failure 400 {object} response.Response{} "Invalid input or conversion failure"
 // @Failure 500 {object} response.Response{} "Internal server error"
 // @Router /subscription/payment-success [get]
-func (s *SubscriptionHandler) VerifyPayment(c *gin.Context){
-	orderId,err:=strconv.Atoi(c.Query("order_id"))
+func (s *SubscriptionHandler) VerifyPayment(c *gin.Context) {
+	orderId, err := strconv.Atoi(c.Query("order_id"))
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusBadRequest, "string conversion failed", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errRes)
 		return
 	}
-	paymentId:=c.Query("payment_id")
-	
-	signature:=c.Query("signature")
-	
-	err=s.Usecase.VerifyPayment(uint(orderId),signature,paymentId)
+	paymentId := c.Query("payment_id")
+
+	signature := c.Query("signature")
+
+	err = s.Usecase.VerifyPayment(uint(orderId), signature, paymentId)
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errRes)
@@ -325,7 +327,7 @@ func (s *SubscriptionHandler) VerifyPayment(c *gin.Context){
 // @Failure 401 {object} response.Response{} "unauthorised"
 // @Failure 500 {object} response.Response{} "internal server error"
 // @Router /subscription/orders [get]
-func (s *SubscriptionHandler) GetOrders(c *gin.Context){
+func (s *SubscriptionHandler) GetOrders(c *gin.Context) {
 	id, ok := c.Get("userId")
 	if !ok {
 		errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorised", nil, "error in retrieving user id")
@@ -333,7 +335,7 @@ func (s *SubscriptionHandler) GetOrders(c *gin.Context){
 		return
 	}
 
-	res,err:=s.Usecase.GetOrders(id.(uint))
+	res, err := s.Usecase.GetOrders(id.(uint))
 	if err != nil {
 		errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errRes)
