@@ -74,8 +74,8 @@ func (u *UserHandler) VerifyOtp(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errRes)
 		return
 	}
-	c.SetCookie("accessToken", token.AccessToken, 4500, "", "", false, true)
-	c.SetCookie("refreshToken", token.RefreshToken, 4500, "", "", false, true)
+	c.SetCookie("accessToken", token.AccessToken, 172800, "", "", false, true)
+	c.SetCookie("refreshToken", token.RefreshToken, 172800, "", "", false, true)
 	if exist {
 		succRes := response.MakeResponse(http.StatusOK, "successfully verified existing user", token, nil)
 		c.JSON(http.StatusOK, succRes)

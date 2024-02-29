@@ -51,7 +51,7 @@ func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
 		}
 		accessToken, err := ValidateUserToken(accessTokens)
 		if err != nil || !accessToken.Valid {
-			fmt.Println("reached")
+
 			refreshTokens, err := c.Cookie("refreshToken")
 			if err != nil {
 				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
@@ -59,7 +59,7 @@ func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			fmt.Println("refre",refreshTokens)
+
 			refreshToken, err := ValidateUserToken(refreshTokens)
 			if err != nil || !refreshToken.Valid {
 				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, err.Error())
@@ -67,7 +67,7 @@ func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			fmt.Println("rt",refreshToken)
+
 			claim, ok := refreshToken.Claims.(*helper.CustomUserClaim)
 			if !ok {
 				errRes := response.MakeResponse(http.StatusUnauthorized, "unauthorized", nil, "it is not admin token")
@@ -75,9 +75,9 @@ func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			fmt.Println("cl",claim)
+
 			id := claim.Id
-			fmt.Println("id",id)
+
 			block, err := a.UserRepository.IsBlocked(id)
 			if err != nil {
 				errRes := response.MakeResponse(http.StatusInternalServerError, "internal server error", nil, "error in block checking from repository")
@@ -85,7 +85,7 @@ func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			fmt.Println("blo",block)
+
 			if block {
 
 				errRes := response.MakeResponse(http.StatusUnauthorized, "claim recovery failed", nil, "user is blocked")
@@ -101,10 +101,9 @@ func (a *AuthMiddleware) UserAuthorization() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			fmt.Println("access",access)
-			fmt.Println("refresh",refresh)
-			c.SetCookie("accessToken", access, 4500, "", "", false, true)
-			c.SetCookie("refreshToken", refresh, 4500, "", "", false, true)
+
+			c.SetCookie("accessToken", access, 172800, "", "", false, true)
+			c.SetCookie("refreshToken", refresh, 172800, "", "", false, true)
 			c.Set("userId", id)
 			c.Next()
 			return
