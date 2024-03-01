@@ -24,12 +24,12 @@ func (s *SubscriptionRepository) IsExist(name string) (bool, error) {
 	return count > 0, nil
 }
 
-func (s *SubscriptionRepository) IsExistById(sId uint)(bool,error){
+func (s *SubscriptionRepository) IsExistById(sId uint) (bool, error) {
 	var count int
-	if err:=s.DB.Raw(`SELECT COUNT(*) FROM subscriptions WHERE id=?`,sId).Scan(&count).Error;err!=nil{
-		return false,err
+	if err := s.DB.Raw(`SELECT COUNT(*) FROM subscriptions WHERE id=?`, sId).Scan(&count).Error; err != nil {
+		return false, err
 	}
-	return count>0,nil
+	return count > 0, nil
 }
 
 func (s *SubscriptionRepository) Add(sub models.Subscription) (uint, error) {
@@ -106,26 +106,26 @@ func (s *SubscriptionRepository) GetByIdToUsers(sID uint) (response.ShowSubscrip
 
 func (s *SubscriptionRepository) AddOrder(order models.Order) (uint, error) {
 	var id uint
-	if err := s.DB.Raw(`INSERT INTO subscription_orders(subscription_id,user_id,subscribe_date,status) VALUES(?,?,?,?) RETURNING id`,order.SubscriptionId,order.UserId,order.SubscribeDate,order.Status).Scan(&id).Error; err != nil {
+	if err := s.DB.Raw(`INSERT INTO subscription_orders(subscription_id,user_id,subscribe_date,status) VALUES(?,?,?,?) RETURNING id`, order.SubscriptionId, order.UserId, order.SubscribeDate, order.Status).Scan(&id).Error; err != nil {
 		return 0, err
 	}
 	return id, nil
 }
 
-func (s *SubscriptionRepository) IsOrderExist(orderId uint)(bool,error){
+func (s *SubscriptionRepository) IsOrderExist(orderId uint) (bool, error) {
 	var count int
-	if err:=s.DB.Raw(`SELECT COUNT(*) FROM subscription_orders WHERE id=?`,orderId).Scan(&count).Error;err!=nil{
-		return false,err
+	if err := s.DB.Raw(`SELECT COUNT(*) FROM subscription_orders WHERE id=?`, orderId).Scan(&count).Error; err != nil {
+		return false, err
 	}
-	return count>0,nil
+	return count > 0, nil
 }
 
-func (s *SubscriptionRepository) GetDetailsForPayment(orderId uint)(models.OrderDetails,error){
+func (s *SubscriptionRepository) GetDetailsForPayment(orderId uint) (models.OrderDetails, error) {
 	var order models.OrderDetails
-	if err:=s.DB.Raw(`SELECT u.name AS user_name,s.amount FROM subscription_orders AS so JOIN users AS u ON so.user_id=u.id JOIN subscriptions s ON so.subscription_id=s.id WHERE so.id=?`,orderId).Scan(&order).Error;err!=nil{
-		return models.OrderDetails{},err
+	if err := s.DB.Raw(`SELECT u.name AS user_name,s.amount FROM subscription_orders AS so JOIN users AS u ON so.user_id=u.id JOIN subscriptions s ON so.subscription_id=s.id WHERE so.id=?`, orderId).Scan(&order).Error; err != nil {
+		return models.OrderDetails{}, err
 	}
-	return order,nil
+	return order, nil
 }
 
 func (s *SubscriptionRepository) AddRazorId(orderId uint, razorId string) error {
@@ -135,12 +135,12 @@ func (s *SubscriptionRepository) AddRazorId(orderId uint, razorId string) error 
 	return nil
 }
 
-func (s *SubscriptionRepository) AddPaymentId(orderId uint, paymentId,status string) (models.PaymentRes,error) {
+func (s *SubscriptionRepository) AddPaymentId(orderId uint, paymentId, status string) (models.PaymentRes, error) {
 	var res models.PaymentRes
-	if err:= s.DB.Raw(`UPDATE subscription_orders SET payment_id=?,status=? WHERE id=? RETURNING user_id,subscription_id`, paymentId,status, orderId).Scan(&res).Error;err!=nil{
-		return models.PaymentRes{},err
+	if err := s.DB.Raw(`UPDATE subscription_orders SET payment_id=?,status=? WHERE id=? RETURNING user_id,subscription_id`, paymentId, status, orderId).Scan(&res).Error; err != nil {
+		return models.PaymentRes{}, err
 	}
-	return res,nil
+	return res, nil
 }
 
 func (s *SubscriptionRepository) FetchRazorId(orderId uint) (string, error) {
@@ -151,21 +151,21 @@ func (s *SubscriptionRepository) FetchRazorId(orderId uint) (string, error) {
 	return razorId, nil
 }
 
-func (s *SubscriptionRepository) OrderStatus(orderId uint)(string,error){
+func (s *SubscriptionRepository) OrderStatus(orderId uint) (string, error) {
 	var status string
-	if err:=s.DB.Raw(`SELECT status FROM subscription_orders WHERE id=?`,orderId).Scan(&status).Error;err!=nil{
-		return "",err
+	if err := s.DB.Raw(`SELECT status FROM subscription_orders WHERE id=?`, orderId).Scan(&status).Error; err != nil {
+		return "", err
 	}
-	return status,nil
+	return status, nil
 }
 
-func (s *SubscriptionRepository) MakeUserSubscribed(subUser models.PaymentRes)error{
-	return s.DB.Exec(`UPDATE users SET is_subscribed=?,like_count=(SELECT likes FROM subscriptions WHERE id=?),subscription_id=? WHERE id=?`,true,subUser.SubscriptionId,subUser.SubscriptionId,subUser.UserId).Error
+func (s *SubscriptionRepository) MakeUserSubscribed(subUser models.PaymentRes) error {
+	return s.DB.Exec(`UPDATE users SET is_subscribed=?,like_count=(SELECT likes FROM subscriptions WHERE id=?),subscription_id=? WHERE id=?`, true, subUser.SubscriptionId, subUser.SubscriptionId, subUser.UserId).Error
 }
 
-func (s *SubscriptionRepository) ShowOrders(userId uint)([]response.ShowOrder,error){
+func (s *SubscriptionRepository) ShowOrders(userId uint) ([]response.ShowOrder, error) {
 	var orders []response.ShowOrder
-	if err:=s.DB.Raw(`SELECT
+	if err := s.DB.Raw(`SELECT
     o.id,
     o.subscription_id,
     s.name AS subscription_name,
@@ -178,8 +178,8 @@ FROM
 JOIN
     subscriptions AS s ON s.id = o.subscription_id
 WHERE
-    o.user_id = ?`,userId).Scan(&orders).Error;err!=nil{
-		return nil,err
+    o.user_id = ? AND status='paid'`, userId).Scan(&orders).Error; err != nil {
+		return nil, err
 	}
-	return orders,nil
+	return orders, nil
 }
