@@ -51,28 +51,28 @@ func (c *ChatRepository) IsChatExist(user1, user2 uint) (bool, error) {
 	return true, nil
 }
 
-func (c *ChatRepository) IsValidChatId(chatId primitive.ObjectID)(bool,error){
+func (c *ChatRepository) IsValidChatId(chatId primitive.ObjectID) (bool, error) {
 	filter := bson.M{
 		"_id": chatId,
 	}
-	
+
 	var chat domain.Chats
 	err := c.ChatCollection.FindOne(context.TODO(), filter).Decode(&chat)
-	
+
 	if err == mongo.ErrNoDocuments {
 		return false, nil // ChatId does not exist
 	} else if err != nil {
 		return false, err // Error occurred while querying the database
 	}
-	
+
 	return true, nil // ChatId exists
-	
+
 }
 
 func (c *ChatRepository) GetAllChats(id uint) ([]models.Chat, error) {
 	// Define the filter and projection
 	filter := bson.M{"users": bson.M{"$in": []uint{id}}}
-	projection := bson.M{"_id": 1, "users": bson.M{"$elemMatch": bson.M{"$ne": id}}, "created_at": 1}
+	projection := bson.M{"_id": 1, "users": bson.M{"$elemMatch": bson.M{"$ne": id}}, "last_message": 1, "last_message_time": 1}
 
 	// Execute the find query
 	cursor, err := c.ChatCollection.Find(context.TODO(), filter, options.Find().SetProjection(projection))
@@ -114,11 +114,11 @@ func (c *ChatRepository) SaveMessage(message domain.Messages) (primitive.ObjectI
 	return id.InsertedID.(primitive.ObjectID), nil
 }
 
-func (c *ChatRepository) UpdateLastMessageAndTime(chatId primitive.ObjectID,lastMessage string,time time.Time)error{
-	filter:=bson.M{"_id":chatId}
-	update:=bson.M{"$set":bson.M{"last_message":lastMessage,"last_message_time":time}}
-	_,err:=c.ChatCollection.UpdateOne(context.TODO(),filter,update)
-	if err!=nil{
+func (c *ChatRepository) UpdateLastMessageAndTime(chatId primitive.ObjectID, lastMessage string, time time.Time) error {
+	filter := bson.M{"_id": chatId}
+	update := bson.M{"$set": bson.M{"last_message": lastMessage, "last_message_time": time}}
+	_, err := c.ChatCollection.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
 		return err
 	}
 	return nil
@@ -153,34 +153,34 @@ func (c *ChatRepository) FetchRecipient(chatId primitive.ObjectID, userId uint) 
 }
 
 func (c *ChatRepository) DeleteChatsAndMessagesByUserID(userID uint) error {
-    // Find chats associated with the user ID
-    var chatIDs []primitive.ObjectID
-    filter := bson.M{"users": userID}
-    cursor, err := c.ChatCollection.Find(context.Background(), filter)
-    if err != nil {
-        return err
-    }
-    defer cursor.Close(context.Background())
+	// Find chats associated with the user ID
+	var chatIDs []primitive.ObjectID
+	filter := bson.M{"users": userID}
+	cursor, err := c.ChatCollection.Find(context.Background(), filter)
+	if err != nil {
+		return err
+	}
+	defer cursor.Close(context.Background())
 
-    for cursor.Next(context.Background()) {
-        var chat domain.Chats
-        if err := cursor.Decode(&chat); err != nil {
-            return err
-        }
-        chatIDs = append(chatIDs, chat.ID)
-    }
+	for cursor.Next(context.Background()) {
+		var chat domain.Chats
+		if err := cursor.Decode(&chat); err != nil {
+			return err
+		}
+		chatIDs = append(chatIDs, chat.ID)
+	}
 
-    // Delete messages in chats associated with the user ID
-    _, err = c.MessageCollection.DeleteMany(context.Background(), bson.M{"chat_id": bson.M{"$in": chatIDs}})
-    if err != nil {
-        return err
-    }
+	// Delete messages in chats associated with the user ID
+	_, err = c.MessageCollection.DeleteMany(context.Background(), bson.M{"chat_id": bson.M{"$in": chatIDs}})
+	if err != nil {
+		return err
+	}
 
-    // Delete chats associated with the user ID
-    _, err = c.ChatCollection.DeleteMany(context.Background(), filter)
-    if err != nil {
-        return err
-    }
+	// Delete chats associated with the user ID
+	_, err = c.ChatCollection.DeleteMany(context.Background(), filter)
+	if err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }
